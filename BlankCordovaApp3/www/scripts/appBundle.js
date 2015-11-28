@@ -271,7 +271,7 @@ var BlankCordovaApp3;
                 $("#startbutton").show();
             });
             frame.TimerUpdated.on(function (e) {
-                if (frame.TimeLeft < 1) {
+                if (frame.TimeLeft < 3) {
                     $("#timer > span").text(frame.TimeLeft.toFixed(1));
                 }
                 else {

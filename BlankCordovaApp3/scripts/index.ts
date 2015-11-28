@@ -306,7 +306,7 @@
             });
 
             frame.TimerUpdated.on(e => {
-                if (frame.TimeLeft < 1) {
+                if (frame.TimeLeft < 3) {
                     $("#timer > span").text(frame.TimeLeft.toFixed(1));
                 } else {
                     $("#timer > span").text(frame.TimeLeft.toFixed(0));
