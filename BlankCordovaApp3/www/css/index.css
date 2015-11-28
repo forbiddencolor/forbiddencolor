@@ -84,6 +84,9 @@ html, body {
     float: right;
 }
 
+    #score > span {
+    }
+
 #forbiddencolor {
     top: 50%;
 }
@@ -100,7 +103,10 @@ html, body {
     #timer > span {
     }
 
-#score > span {
+
+#currentforbiddencolor {
+    display: none;
+    float: left;
 }
 
 footer {
@@ -110,7 +116,27 @@ footer {
     height: 40px;
 }
 
-#startbutton {
-    width: 200px;
+div.startbutton {
+    position: absolute;
+    top: 40%;
+    width: 100%;
+    text-align: center;
+}
+
+.startbutton button {
+    cursor: pointer;
+}
+
+.startbutton > img {
+    border: 0;
+    width: 100px;
     height: 100%;
+    -webkit-filter: invert(100%);
+    -moz-filter: invert(100%);
+    -o-filter: invert(100%);
+    filter: invert(100%);
+}
+
+button:focus {
+    outline: 0;
 }

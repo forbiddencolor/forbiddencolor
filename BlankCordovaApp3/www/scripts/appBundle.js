@@ -64,7 +64,7 @@ var BlankCordovaApp3;
             this.onTimerUpdated = new LiteEvent();
             this.onCountDown = new LiteEvent();
             this.PossibleColors = [
-                { color: "#FFFF00", name: "Yellow" },
+                { color: "#10E5E5", name: "Cyan" },
                 { color: "#FF7F00", name: "Orange" },
                 { color: "#AA2AFF", name: "Purple" },
                 { color: "#00CC00", name: "Green" },
@@ -73,7 +73,9 @@ var BlankCordovaApp3;
                 { color: "#FF55FF", name: "Pink" } // pink
             ];
             this.CurrentColor = this.pickColor();
-            // this.ForbiddenColor = "#FF0000";
+            this.ForbiddenColor = this.CurrentColor;
+            this.CurrentStreak = 0;
+            this.CountDown = 0;
             this.Score = 0;
             this.TimeLeft = 0;
         }
@@ -116,13 +118,13 @@ var BlankCordovaApp3;
             this.TimeLeft = 10;
             this.ForbiddenColor = this.pickColor();
             this.CurrentColor = this.ForbiddenColor;
-            this.CountDown = 3;
-            //if (this._countdownInterval) {
-            //    clearInterval(this._countdownInterval);
-            //}
-            //if (this._interval) {
-            //    clearInterval(this._interval);
-            //}
+            this.CountDown = 2;
+            if (this._countdownInterval) {
+                clearInterval(this._countdownInterval);
+            }
+            if (this._interval) {
+                clearInterval(this._interval);
+            }
             this._countdownInterval = setInterval(function () {
                 _this.CountDown -= 1;
                 if (_this.CountDown <= 0) {
@@ -163,7 +165,10 @@ var BlankCordovaApp3;
             }
         };
         Frame.prototype.pickColor = function () {
-            return this.PossibleColors[Math.floor((Math.random() * this.PossibleColors.length) + 1)];
+            var num = Math.floor((Math.random() * this.PossibleColors.length));
+            console.log('picked: ' + num);
+            var color = this.PossibleColors[num];
+            return color;
         };
         Frame.prototype.success = function () {
             this.Score++;
@@ -208,14 +213,19 @@ var BlankCordovaApp3;
             $("#score > span").text(frame.Score);
             // $("#timer > span").text(frame.TimeLeft);
             $("body").on("click", function (e) {
-                frame.tap();
-                $("body").css("background-color", frame.CurrentColor.color);
-                $("#score > span").text(frame.Score);
+                // frame.tap();
+                // $("body").css("background-color", frame.CurrentColor.color);
+                // $("#score > span").text(frame.Score);
             });
-            $("body").on("swipeone swipetwo", function (e) {
-                frame.swipe();
-                $("body").css("background-color", frame.CurrentColor.color);
-                $("#score > span").text(frame.Score);
+            $("body").on("click swipeone swipetwo", function (e) {
+                if (e.type === "click") {
+                    frame.tap();
+                }
+                else {
+                    frame.swipe();
+                }
+                // $("body").css("background-color", frame.CurrentColor.color);
+                // $("#score > span").text(frame.Score);
             });
             $("#startbutton").on("click", function (e) {
                 frame.start();
@@ -230,7 +240,6 @@ var BlankCordovaApp3;
             });
             frame.NextFrame.on(function (x) {
                 $("#score > span").text(frame.Score);
-                $("body").css("background-color", frame.CurrentColor.color);
                 if (x.Correct) {
                     $("#plusscore > span").text("+1");
                     $("#plusscore").css("display", "block");
@@ -246,15 +255,19 @@ var BlankCordovaApp3;
                         $("#oops").css("display", "none");
                     }, popupmesssagedelay);
                 }
+                $("body").css("background-color", frame.CurrentColor.color);
             });
             frame.GameStarted.on(function (e) {
+                $("#score > span").text(frame.Score);
                 $("#timer > span").text(frame.TimeLeft);
-                $("#startbutton").hide();
                 $("body").css("background-color", frame.CurrentColor.color);
+                $("#startbutton").hide();
+                $("#currentforbiddencolor").html("" + frame.CurrentColor.name);
             });
             frame.GameEnded.on(function (e) {
-                $("body").css("background-color", frame.CurrentColor.color);
+                $("#score > span").text(frame.Score);
                 $("#timer > span").text(frame.TimeLeft);
+                // $("body").css("background-color", frame.CurrentColor.color);
                 $("#startbutton").show();
             });
             frame.TimerUpdated.on(function (e) {
@@ -268,19 +281,19 @@ var BlankCordovaApp3;
             frame.CountDownUpdated.on(function (e) {
                 if (e.CountDown > 0) {
                     // $('#forbiddencolor').html('Forbidden color<br />' + frame.CurrentColor.name);
-                    $('#forbiddencolor').show();
+                    $("#forbiddencolor").show();
                 }
                 else {
-                    $('#forbiddencolor').hide();
+                    $("#forbiddencolor").hide();
                 }
                 var text = e.CountDown === 0 ? "Go" : e.CountDown; // (e.CountDown === 4 ? "Forbidden color" : e.CountDown);
-                $("body").css("background-color", frame.CurrentColor.color);
                 $("#countdown > span").text(text);
                 $("#countdown").css("display", "block");
                 $("#countdown").addClass("animated bounceIn");
                 setTimeout(function () {
                     $("#countdown").css("display", "none");
                 }, popupmesssagedelay);
+                $("body").css("background-color", frame.CurrentColor.color);
             });
         }
         function onPause() {
