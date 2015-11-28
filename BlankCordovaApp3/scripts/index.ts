@@ -46,6 +46,14 @@
         }
     }
 
+    class CountDownEventArgs {
+        public CountDown: number;
+
+        constructor(countDown: number) {
+            this.CountDown = countDown;
+        }
+    }
+
     class GameStartedEventArgs {
 
         constructor() {
@@ -58,6 +66,11 @@
         }
     }
 
+    class Color {
+        public name: string;
+        public color: string;
+    }
+
     class Frame {
         private _interval: any;
         private onNextFrame = new LiteEvent<NextFrameEventArgs>();
@@ -65,30 +78,34 @@
         private onGameStarted = new LiteEvent<GameStartedEventArgs>();
         private onGameEnded = new LiteEvent<GameEndedEventArgs>();
         private onTimerUpdated = new LiteEvent<TimerUpdatedEventArgs>();
+        private onCountDown = new LiteEvent<CountDownEventArgs>();
+        private _countdownInterval: any;
 
         public Score: number;
-        public CurrentColor: string;
-        public ForbiddenColor: string;
-        public PossibleColors: string[];
+        public CurrentColor: Color;
+        public ForbiddenColor: Color;
+        public PossibleColors: Color[];
         public Started: boolean;
         public TimeLeft: number;
         public CurrentStreak: number;
+        public CountDown: number;
 
-        public get NextFrame(): ILiteEvent<NextFrameEventArgs> { return this.onNextFrame; } 
-        public get TimeBonus(): ILiteEvent<TimeBonusEventArgs> { return this.onTimeBonus; } 
-        public get GameStarted(): ILiteEvent<GameStartedEventArgs> { return this.onGameStarted; } 
-        public get GameEnded(): ILiteEvent<GameEndedEventArgs> { return this.onGameEnded; } 
-        public get TimerUpdated(): ILiteEvent<TimerUpdatedEventArgs> { return this.onTimerUpdated; } 
+        public get NextFrame(): ILiteEvent<NextFrameEventArgs> { return this.onNextFrame; }
+        public get TimeBonus(): ILiteEvent<TimeBonusEventArgs> { return this.onTimeBonus; }
+        public get GameStarted(): ILiteEvent<GameStartedEventArgs> { return this.onGameStarted; }
+        public get GameEnded(): ILiteEvent<GameEndedEventArgs> { return this.onGameEnded; }
+        public get TimerUpdated(): ILiteEvent<TimerUpdatedEventArgs> { return this.onTimerUpdated; }
+        public get CountDownUpdated(): ILiteEvent<CountDownEventArgs> { return this.onCountDown; }
 
         constructor() {
             this.PossibleColors = [
-                "#FFFF00", // yellow
-                "#FF7F00", // orange
-                "#AA2AFF", // purple
-                "#00CC00", // green
-                "#FF0000", // red
-                "#002AFF", // blue
-                "#FF55FF" // pink
+                { color: "#FFFF00", name: "Yellow" }, // yellow
+                { color: "#FF7F00", name: "Orange" }, // orange
+                { color: "#AA2AFF", name: "Purple" }, // purple
+                { color: "#00CC00", name: "Green" }, // green
+                { color: "#FF0000", name: "Red" }, // red
+                { color: "#002AFF", name: "Blue" }, // blue
+                { color: "#FF55FF", name: "Pink" } // pink
             ];
 
             this.CurrentColor = this.pickColor();
@@ -103,13 +120,33 @@
             this.CurrentStreak = 0;
             this.Score = 0;
             this.TimeLeft = 10;
-            this.CurrentColor = this.pickColor();
 
-            this.ForbiddenColor = "#FF0000";
+            this.ForbiddenColor = this.pickColor();
+            this.CurrentColor = this.ForbiddenColor;
 
-            this.CurrentColor = this.pickColor();
-            this._interval = setInterval(() => { this.updateInterval(); }, 100);
+            this.CountDown = 3;
+
+            //if (this._countdownInterval) {
+            //    clearInterval(this._countdownInterval);
+            //}
+
+            //if (this._interval) {
+            //    clearInterval(this._interval);
+            //}
+
+            this._countdownInterval = setInterval(() => {
+                this.CountDown -= 1;
+                if (this.CountDown <= 0) {
+                    clearInterval(this._countdownInterval);
+                    this.CurrentColor = this.pickColor();
+                    this._interval = setInterval(() => { this.updateInterval(); }, 100);
+                }
+
+                this.onCountDown.trigger(new CountDownEventArgs(this.CountDown));
+            }, 1000);
+
             this.onGameStarted.trigger(new GameStartedEventArgs());
+            this.onCountDown.trigger(new CountDownEventArgs(this.CountDown));
         }
 
         public endGame() {
@@ -129,8 +166,6 @@
             } else {
                 this.missClick();
             }
-
-            this.CurrentColor = this.pickColor();
         }
 
         public tap() {
@@ -141,8 +176,10 @@
             } else {
                 this.success();
             }
+        }
 
-            this.CurrentColor = this.pickColor();
+        public pickColor(): Color {
+            return this.PossibleColors[Math.floor((Math.random() * this.PossibleColors.length) + 1)];
         }
 
         success() {
@@ -154,17 +191,15 @@
                 this.onTimeBonus.trigger(new TimeBonusEventArgs(1));
             }
 
+            this.CurrentColor = this.pickColor();
             this.onNextFrame.trigger(new NextFrameEventArgs(true));
         }
 
         missClick() {
             this.Score = 0;
             this.CurrentStreak = 0;
+            this.CurrentColor = this.pickColor();
             this.onNextFrame.trigger(new NextFrameEventArgs(false));
-        }
-
-        pickColor(): string {
-            return this.PossibleColors[Math.floor((Math.random() * this.PossibleColors.length) + 1)];
         }
 
         updateInterval() {
@@ -193,20 +228,20 @@
             var popupmesssagedelay = 750;
 
             var frame = new Frame();
-            
-            $("body").css("background-color", frame.CurrentColor);
+
+            $("body").css("background-color", frame.CurrentColor.color);
             $("#score > span").text(frame.Score);
             // $("#timer > span").text(frame.TimeLeft);
 
             $("body").on("click", e => {
                 frame.tap();
-                $("body").css("background-color", frame.CurrentColor);
+                $("body").css("background-color", frame.CurrentColor.color);
                 $("#score > span").text(frame.Score);
             });
 
             $("body").on("swipeone swipetwo", e => {
                 frame.swipe();
-                $("body").css("background-color", frame.CurrentColor);
+                $("body").css("background-color", frame.CurrentColor.color);
                 $("#score > span").text(frame.Score);
             });
 
@@ -225,7 +260,8 @@
             });
 
             frame.NextFrame.on(x => {
-                 $("#score > span").text(frame.Score);
+                $("#score > span").text(frame.Score);
+                $("body").css("background-color", frame.CurrentColor.color);
 
                 if (x.Correct) {
                     $("#plusscore > span").text("+1");
@@ -247,9 +283,11 @@
             frame.GameStarted.on(e => {
                 $("#timer > span").text(frame.TimeLeft);
                 $("#startbutton").hide();
+                $("body").css("background-color", frame.CurrentColor.color);
             });
 
             frame.GameEnded.on(e => {
+                $("body").css("background-color", frame.CurrentColor.color);
                 $("#timer > span").text(frame.TimeLeft);
                 $("#startbutton").show();
             });
@@ -260,6 +298,24 @@
                 } else {
                     $("#timer > span").text(frame.TimeLeft.toFixed(0));
                 }
+            });
+
+            frame.CountDownUpdated.on(e => {
+                if (e.CountDown > 0) {
+                    // $('#forbiddencolor').html('Forbidden color<br />' + frame.CurrentColor.name);
+                    $('#forbiddencolor').show();
+                } else {
+                    $('#forbiddencolor').hide();
+                }
+                var text = e.CountDown === 0 ? "Go" : e.CountDown; // (e.CountDown === 4 ? "Forbidden color" : e.CountDown);
+
+                $("body").css("background-color", frame.CurrentColor.color);
+                $("#countdown > span").text(text);
+                $("#countdown").css("display", "block");
+                $("#countdown").addClass("animated bounceIn");
+                setTimeout(() => {
+                    $("#countdown").css("display", "none");
+                }, popupmesssagedelay);
             });
         }
 

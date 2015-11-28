@@ -1,16 +1,22 @@
-﻿html, body {
+﻿@font-face {
+    font-family: circulat;
+    src: url(../fonts/circulat.ttf);
+}
+
+html, body {
     -webkit-user-select: none;
     height: 100%;
     width: 100%;
     margin: 0;
     padding: 0;
+    font-family: circulat;
 }
 
 #page {
     height: 100%;
     width: 100%;
     margin: 0;
-    padding: 0;    
+    padding: 0;
 }
 
 #frame {
@@ -26,7 +32,13 @@
     /*border-bottom-color: white;
     border-bottom-width: 6px;
     border-bottom-style: solid;*/
+    padding: 0 10px 0 10px;
 }
+
+    #header span {
+        font-size: 4em;
+        color: white;
+    }
 
 .popupmessage {
     position: absolute;
@@ -34,40 +46,37 @@
     top: 20%;
     width: 100%;
     text-align: center;
-    font-size: 58px;
-    font-family: 'Comic Sans MS';
+    font-size: 4em;
+    font-family: circulat;
     font-weight: bold;
     text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
     color: white;
-    display: none;    
+    display: none;
 }
 
-.popupmessage > span {
-    font-size: 58px;
-}
+    .popupmessage > span {
+    }
 
-.popupmessage .title {
-    font-size: 58px;
-}
+    .popupmessage .title {
+    }
 
-.popupmessage .message {
-    font-size: 48px;    
-}
+    .popupmessage .message {
+    }
 
 #plusscore {
     top: 20px;
     text-align: right;
-    font-size: 28px;
 }
 
-#plusscore > span {
-    font-size: 28px;
-}
+    #plusscore > span {
+        font-size: 0.7em;
+    }
 
 #timebonus {
 }
 
 #oops {
+    top: 30%;
 }
 
 #score {
@@ -75,19 +84,23 @@
     float: right;
 }
 
+#forbiddencolor {
+    top: 50%;
+}
+
+    #forbiddencolor span {
+        font-size: 0.8em;
+    }
+
 #timer {
     display: block;
     float: left;
 }
 
     #timer > span {
-        font-size: 36px;
-        color: white;
     }
 
 #score > span {
-    font-size: 36px;
-    color: white;
 }
 
 footer {

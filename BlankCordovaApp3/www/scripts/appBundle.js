@@ -34,6 +34,12 @@ var BlankCordovaApp3;
         }
         return GameEndedEventArgs;
     })();
+    var CountDownEventArgs = (function () {
+        function CountDownEventArgs(countDown) {
+            this.CountDown = countDown;
+        }
+        return CountDownEventArgs;
+    })();
     var GameStartedEventArgs = (function () {
         function GameStartedEventArgs() {
         }
@@ -44,6 +50,11 @@ var BlankCordovaApp3;
         }
         return TimerUpdatedEventArgs;
     })();
+    var Color = (function () {
+        function Color() {
+        }
+        return Color;
+    })();
     var Frame = (function () {
         function Frame() {
             this.onNextFrame = new LiteEvent();
@@ -51,14 +62,15 @@ var BlankCordovaApp3;
             this.onGameStarted = new LiteEvent();
             this.onGameEnded = new LiteEvent();
             this.onTimerUpdated = new LiteEvent();
+            this.onCountDown = new LiteEvent();
             this.PossibleColors = [
-                "#FFFF00",
-                "#FF7F00",
-                "#AA2AFF",
-                "#00CC00",
-                "#FF0000",
-                "#002AFF",
-                "#FF55FF" // pink
+                { color: "#FFFF00", name: "Yellow" },
+                { color: "#FF7F00", name: "Orange" },
+                { color: "#AA2AFF", name: "Purple" },
+                { color: "#00CC00", name: "Green" },
+                { color: "#FF0000", name: "Red" },
+                { color: "#002AFF", name: "Blue" },
+                { color: "#FF55FF", name: "Pink" } // pink
             ];
             this.CurrentColor = this.pickColor();
             // this.ForbiddenColor = "#FF0000";
@@ -90,6 +102,11 @@ var BlankCordovaApp3;
             enumerable: true,
             configurable: true
         });
+        Object.defineProperty(Frame.prototype, "CountDownUpdated", {
+            get: function () { return this.onCountDown; },
+            enumerable: true,
+            configurable: true
+        });
         Frame.prototype.start = function () {
             var _this = this;
             if (this.Started)
@@ -97,11 +114,26 @@ var BlankCordovaApp3;
             this.CurrentStreak = 0;
             this.Score = 0;
             this.TimeLeft = 10;
-            this.CurrentColor = this.pickColor();
-            this.ForbiddenColor = "#FF0000";
-            this.CurrentColor = this.pickColor();
-            this._interval = setInterval(function () { _this.updateInterval(); }, 100);
+            this.ForbiddenColor = this.pickColor();
+            this.CurrentColor = this.ForbiddenColor;
+            this.CountDown = 3;
+            //if (this._countdownInterval) {
+            //    clearInterval(this._countdownInterval);
+            //}
+            //if (this._interval) {
+            //    clearInterval(this._interval);
+            //}
+            this._countdownInterval = setInterval(function () {
+                _this.CountDown -= 1;
+                if (_this.CountDown <= 0) {
+                    clearInterval(_this._countdownInterval);
+                    _this.CurrentColor = _this.pickColor();
+                    _this._interval = setInterval(function () { _this.updateInterval(); }, 100);
+                }
+                _this.onCountDown.trigger(new CountDownEventArgs(_this.CountDown));
+            }, 1000);
             this.onGameStarted.trigger(new GameStartedEventArgs());
+            this.onCountDown.trigger(new CountDownEventArgs(this.CountDown));
         };
         Frame.prototype.endGame = function () {
             var score = this.Score;
@@ -119,7 +151,6 @@ var BlankCordovaApp3;
             else {
                 this.missClick();
             }
-            this.CurrentColor = this.pickColor();
         };
         Frame.prototype.tap = function () {
             if (!this.Started)
@@ -130,7 +161,9 @@ var BlankCordovaApp3;
             else {
                 this.success();
             }
-            this.CurrentColor = this.pickColor();
+        };
+        Frame.prototype.pickColor = function () {
+            return this.PossibleColors[Math.floor((Math.random() * this.PossibleColors.length) + 1)];
         };
         Frame.prototype.success = function () {
             this.Score++;
@@ -139,15 +172,14 @@ var BlankCordovaApp3;
                 this.TimeLeft += 1;
                 this.onTimeBonus.trigger(new TimeBonusEventArgs(1));
             }
+            this.CurrentColor = this.pickColor();
             this.onNextFrame.trigger(new NextFrameEventArgs(true));
         };
         Frame.prototype.missClick = function () {
             this.Score = 0;
             this.CurrentStreak = 0;
+            this.CurrentColor = this.pickColor();
             this.onNextFrame.trigger(new NextFrameEventArgs(false));
-        };
-        Frame.prototype.pickColor = function () {
-            return this.PossibleColors[Math.floor((Math.random() * this.PossibleColors.length) + 1)];
         };
         Frame.prototype.updateInterval = function () {
             this.Started = true;
@@ -172,17 +204,17 @@ var BlankCordovaApp3;
             document.addEventListener("resume", onResume, false);
             var popupmesssagedelay = 750;
             var frame = new Frame();
-            $("body").css("background-color", frame.CurrentColor);
+            $("body").css("background-color", frame.CurrentColor.color);
             $("#score > span").text(frame.Score);
             // $("#timer > span").text(frame.TimeLeft);
             $("body").on("click", function (e) {
                 frame.tap();
-                $("body").css("background-color", frame.CurrentColor);
+                $("body").css("background-color", frame.CurrentColor.color);
                 $("#score > span").text(frame.Score);
             });
             $("body").on("swipeone swipetwo", function (e) {
                 frame.swipe();
-                $("body").css("background-color", frame.CurrentColor);
+                $("body").css("background-color", frame.CurrentColor.color);
                 $("#score > span").text(frame.Score);
             });
             $("#startbutton").on("click", function (e) {
@@ -198,6 +230,7 @@ var BlankCordovaApp3;
             });
             frame.NextFrame.on(function (x) {
                 $("#score > span").text(frame.Score);
+                $("body").css("background-color", frame.CurrentColor.color);
                 if (x.Correct) {
                     $("#plusscore > span").text("+1");
                     $("#plusscore").css("display", "block");
@@ -217,8 +250,10 @@ var BlankCordovaApp3;
             frame.GameStarted.on(function (e) {
                 $("#timer > span").text(frame.TimeLeft);
                 $("#startbutton").hide();
+                $("body").css("background-color", frame.CurrentColor.color);
             });
             frame.GameEnded.on(function (e) {
+                $("body").css("background-color", frame.CurrentColor.color);
                 $("#timer > span").text(frame.TimeLeft);
                 $("#startbutton").show();
             });
@@ -229,6 +264,23 @@ var BlankCordovaApp3;
                 else {
                     $("#timer > span").text(frame.TimeLeft.toFixed(0));
                 }
+            });
+            frame.CountDownUpdated.on(function (e) {
+                if (e.CountDown > 0) {
+                    // $('#forbiddencolor').html('Forbidden color<br />' + frame.CurrentColor.name);
+                    $('#forbiddencolor').show();
+                }
+                else {
+                    $('#forbiddencolor').hide();
+                }
+                var text = e.CountDown === 0 ? "Go" : e.CountDown; // (e.CountDown === 4 ? "Forbidden color" : e.CountDown);
+                $("body").css("background-color", frame.CurrentColor.color);
+                $("#countdown > span").text(text);
+                $("#countdown").css("display", "block");
+                $("#countdown").addClass("animated bounceIn");
+                setTimeout(function () {
+                    $("#countdown").css("display", "none");
+                }, popupmesssagedelay);
             });
         }
         function onPause() {
