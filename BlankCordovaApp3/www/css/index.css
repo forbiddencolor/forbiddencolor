@@ -116,15 +116,32 @@ footer {
     height: 40px;
 }
 
-div.startbutton {
+.howtoplay {
+    margin: 0 8px 0 8px;
+}
+
+    .howtoplay span {
+        font-size: 1.25em;
+    }
+
+#startscreen {
     position: absolute;
-    top: 40%;
+    top: 20%;
+}
+
+div.startbutton {
     width: 100%;
     text-align: center;
 }
 
 .startbutton button {
     cursor: pointer;
+}
+
+.startbutton > span {
+    font-family: circulat;
+    font-size: 8em;
+    color: white;
 }
 
 .startbutton > img {
@@ -139,4 +156,11 @@ div.startbutton {
 
 button:focus {
     outline: 0;
+}
+
+.howtoplay {
+    color: white;
+    font-weight: normal;
+    font-size: 1.3em;
+    padding: 0 0 0 10px;
 }

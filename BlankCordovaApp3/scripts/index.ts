@@ -294,7 +294,7 @@
                 $("#score > span").text(frame.Score);
                 $("#timer > span").text(frame.TimeLeft);
                 $("body").css("background-color", frame.CurrentColor.color);
-                $("#startbutton").hide();
+                $("#startscreen").hide();
                 $("#currentforbiddencolor").html("" + frame.CurrentColor.name);
             });
 
@@ -302,7 +302,7 @@
                 $("#score > span").text(frame.Score);
                 $("#timer > span").text(frame.TimeLeft);
                 // $("body").css("background-color", frame.CurrentColor.color);
-                $("#startbutton").show();
+                $("#startscreen").show();
             });
 
             frame.TimerUpdated.on(e => {

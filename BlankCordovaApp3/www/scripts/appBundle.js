@@ -261,14 +261,14 @@ var BlankCordovaApp3;
                 $("#score > span").text(frame.Score);
                 $("#timer > span").text(frame.TimeLeft);
                 $("body").css("background-color", frame.CurrentColor.color);
-                $("#startbutton").hide();
+                $("#startscreen").hide();
                 $("#currentforbiddencolor").html("" + frame.CurrentColor.name);
             });
             frame.GameEnded.on(function (e) {
                 $("#score > span").text(frame.Score);
                 $("#timer > span").text(frame.TimeLeft);
                 // $("body").css("background-color", frame.CurrentColor.color);
-                $("#startbutton").show();
+                $("#startscreen").show();
             });
             frame.TimerUpdated.on(function (e) {
                 if (frame.TimeLeft < 3) {
