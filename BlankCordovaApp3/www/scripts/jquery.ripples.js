@@ -6,409 +6,393 @@
 
 +function ($) {
 
-	var gl;
-	var $window = $(window); // There is only one window, so why not cache the jQuery-wrapped window?
+    var gl;
+    var $window = $(window); // There is only one window, so why not cache the jQuery-wrapped window?
 
-	function isPercentage(str) {
-		return str[str.length - 1] == '%';
-	}
+    function isPercentage(str) {
+        return str[str.length - 1] === '%';
+    }
 
-	function hasWebGLSupport() {
-		var canvas = document.createElement('canvas');
-		var context = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-		var result = context && context.getExtension('OES_texture_float');
-		return result;
-	}
+    function hasWebGLSupport() {
+        var canvas = document.createElement('canvas');
+        var context = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+        var result = context && context.getExtension('OES_texture_float');
+        return result;
+    }
 
-	var supportsWebGL = hasWebGLSupport();
+    var supportsWebGL = hasWebGLSupport();
 
-	function createProgram(vertexSource, fragmentSource, uniformValues)
-	{
-		function compileSource(type, source) {
-			var shader = gl.createShader(type);
-			gl.shaderSource(shader, source);
-			gl.compileShader(shader);
-			if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-				throw new Error('compile error: ' + gl.getShaderInfoLog(shader));
-			}
-			return shader;
-		}
+    function createProgram(vertexSource, fragmentSource, uniformValues) {
+        function compileSource(type, source) {
+            var shader = gl.createShader(type);
+            gl.shaderSource(shader, source);
+            gl.compileShader(shader);
+            if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+                throw new Error('compile error: ' + gl.getShaderInfoLog(shader));
+            }
+            return shader;
+        }
 
-		var program = {};
+        var program = {};
 
-		program.id = gl.createProgram();
-		gl.attachShader(program.id, compileSource(gl.VERTEX_SHADER, vertexSource));
-		gl.attachShader(program.id, compileSource(gl.FRAGMENT_SHADER, fragmentSource));
-		gl.linkProgram(program.id);
-		if (!gl.getProgramParameter(program.id, gl.LINK_STATUS)) {
-			throw new Error('link error: ' + gl.getProgramInfoLog(program.id));
-		}
+        program.id = gl.createProgram();
+        gl.attachShader(program.id, compileSource(gl.VERTEX_SHADER, vertexSource));
+        gl.attachShader(program.id, compileSource(gl.FRAGMENT_SHADER, fragmentSource));
+        gl.linkProgram(program.id);
+        if (!gl.getProgramParameter(program.id, gl.LINK_STATUS)) {
+            throw new Error('link error: ' + gl.getProgramInfoLog(program.id));
+        }
 
-		// Fetch the uniform and attribute locations
-		program.uniforms = {};
-		program.locations = {};
-		gl.useProgram(program.id);
-		gl.enableVertexAttribArray(0);
-		var name, type, regex = /uniform (\w+) (\w+)/g, shaderCode = vertexSource + fragmentSource;
-		while ((match = regex.exec(shaderCode)) != null) {
-			name = match[2];
-			program.locations[name] = gl.getUniformLocation(program.id, name);
-		}
+        // Fetch the uniform and attribute locations
+        program.uniforms = {};
+        program.locations = {};
+        gl.useProgram(program.id);
+        gl.enableVertexAttribArray(0);
+        var name, regex = /uniform (\w+) (\w+)/g, shaderCode = vertexSource + fragmentSource;
+        var match;
+        while ((match = regex.exec(shaderCode)) != null) {
+            name = match[2];
+            program.locations[name] = gl.getUniformLocation(program.id, name);
+        }
 
-		return program;
-	}
+        return program;
+    }
 
-	function bindTexture(texture, unit) {
-		gl.activeTexture(gl.TEXTURE0 + (unit || 0));
-		gl.bindTexture(gl.TEXTURE_2D, texture);
-	}
+    function bindTexture(texture, unit) {
+        gl.activeTexture(gl.TEXTURE0 + (unit || 0));
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+    }
 
-	// Extend the css
-	$('head').prepend('<style>.jquery-ripples { position: relative; z-index: 0; }</style>');
+    // Extend the css
+    $('head').prepend('<style>.jquery-ripples { position: relative; z-index: 0; }</style>');
 
-	// RIPPLES CLASS DEFINITION
-	// =========================
+    // RIPPLES CLASS DEFINITION
+    // =========================
 
-	var Ripples = function (el, options) {
-		var that = this;
+    var Ripples = function (el, options) {
+        var that = this;
 
-		this.$el = $(el);
-		this.$el.addClass('jquery-ripples');
+        this.$el = $(el);
+        this.$el.addClass('jquery-ripples');
 
-		// If this element doesn't have a background image, don't apply this effect to it
-		var backgroundUrl = (/url\(["']?([^"']*)["']?\)/.exec(this.$el.css('background-image')));
-		var backgroundColor = this.$el.css('background-color');
-		if (backgroundUrl != null) {
-		    backgroundUrl = backgroundUrl[1];
-		} else {
-		    
-		}
+        // If this element doesn't have a background image, don't apply this effect to it
+        var backgroundUrl = (/url\(["']?([^"']*)["']?\)/.exec(this.$el.css('background-image')));
+        var backgroundColor = this.$el.css('background-color');
+        if (backgroundUrl != null) {
+            backgroundUrl = backgroundUrl[1];
+        }
 
-		this.interactive = options.interactive;
-		this.resolution = options.resolution || 256;
-		this.textureDelta = new Float32Array([1 / this.resolution, 1 / this.resolution]);
+        this.interactive = options.interactive;
+        this.resolution = options.resolution || 256;
+        this.textureDelta = new Float32Array([1 / this.resolution, 1 / this.resolution]);
 
-		this.perturbance = options.perturbance;
-		this.dropRadius = options.dropRadius;
+        this.perturbance = options.perturbance;
+        this.dropRadius = options.dropRadius;
 
-		var canvas = document.createElement('canvas');
-		canvas.width = this.$el.innerWidth();
-		canvas.height = this.$el.innerHeight();
-		this.canvas = canvas;
-		this.$canvas = $(canvas);
-		this.$canvas.css({
-			position: 'absolute',
-			left: 0,
-			top: 0,
-			right: 0,
-			bottom: 0,
-			zIndex: -1
-		});
+        var canvas = document.createElement('canvas');
+        canvas.width = this.$el.innerWidth();
+        canvas.height = this.$el.innerHeight();
+        this.canvas = canvas;
+        this.$canvas = $(canvas);
+        this.$canvas.css({
+            position: 'absolute',
+            left: 0,
+            top: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: -1
+        });
 
-		this.$el.append(canvas);
-		this.context = gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+        this.$el.append(canvas);
+        this.context = gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
 
-		// Load extensions
-		gl.getExtension('OES_texture_float');
-		var linearSupport = gl.getExtension('OES_texture_float_linear');
+        // Load extensions
+        gl.getExtension('OES_texture_float');
+        var linearSupport = gl.getExtension('OES_texture_float_linear');
 
-		// Init events
-		$(window).on('resize', function() {
-			if (that.$el.innerWidth() != that.canvas.width || that.$el.innerHeight() != that.canvas.height) {
-				canvas.width = that.$el.innerWidth();
-				canvas.height = that.$el.innerHeight();
-			}
-		});
+        // Init events
+        $(window).on('resize', function () {
+            if (that.$el.innerWidth() !== that.canvas.width || that.$el.innerHeight() !== that.canvas.height) {
+                canvas.width = that.$el.innerWidth();
+                canvas.height = that.$el.innerHeight();
+            }
+        });
 
-		this.$el.on('mousemove.ripples', function(e) {
-			if (that.visible && that.running && that.interactive) that.dropAtMouse(e, that.dropRadius, 0.01);
-		}).on('mousedown.ripples', function(e) {
-			if (that.visible && that.running && that.interactive) that.dropAtMouse(e, that.dropRadius * 1.5, 0.14);
-		});
+        this.$el.on('mousemove.ripples', function (e) {
+            if (that.visible && that.running && that.interactive) that.dropAtMouse(e, that.dropRadius, 0.01);
+        }).on('mousedown.ripples', function (e) {
+            if (that.visible && that.running && that.interactive) that.dropAtMouse(e, that.dropRadius * 1.5, 0.14);
+        });
 
-		this.textures = [];
-		this.framebuffers = [];
+        this.textures = [];
+        this.framebuffers = [];
 
-		for (var i = 0; i < 2; i++) {
-			var texture = gl.createTexture();
-			var framebuffer = gl.createFramebuffer();
+        for (var i = 0; i < 2; i++) {
+            var texture = gl.createTexture();
+            var framebuffer = gl.createFramebuffer();
 
-			gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
-			framebuffer.width = this.resolution;
-			framebuffer.height = this.resolution;
+            gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+            framebuffer.width = this.resolution;
+            framebuffer.height = this.resolution;
 
-			gl.bindTexture(gl.TEXTURE_2D, texture);
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, linearSupport ? gl.LINEAR : gl.NEAREST);
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, linearSupport ? gl.LINEAR : gl.NEAREST);
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.resolution, this.resolution, 0, gl.RGBA, gl.FLOAT, null);
+            gl.bindTexture(gl.TEXTURE_2D, texture);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, linearSupport ? gl.LINEAR : gl.NEAREST);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, linearSupport ? gl.LINEAR : gl.NEAREST);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.resolution, this.resolution, 0, gl.RGBA, gl.FLOAT, null);
 
-			gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
-			if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) != gl.FRAMEBUFFER_COMPLETE) {
-				throw new Error('Rendering to this texture is not supported (incomplete framebuffer)');
-			}
+            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
+            if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) {
+                throw new Error('Rendering to this texture is not supported (incomplete framebuffer)');
+            }
 
-			gl.bindTexture(gl.TEXTURE_2D, null);
-			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+            gl.bindTexture(gl.TEXTURE_2D, null);
+            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
-			this.textures.push(texture);
-			this.framebuffers.push(framebuffer);
-		}
+            this.textures.push(texture);
+            this.framebuffers.push(framebuffer);
+        }
 
-		this.running = true;
+        this.running = true;
 
-		// Init GL stuff
-		this.quad = gl.createBuffer();
-		gl.bindBuffer(gl.ARRAY_BUFFER, this.quad);
-		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+        // Init GL stuff
+        this.quad = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.quad);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
 			-1, -1,
 			+1, -1,
 			+1, +1,
 			-1, +1
-		]), gl.STATIC_DRAW);
+        ]), gl.STATIC_DRAW);
 
-		this.initShaders();
+        this.initShaders();
 
-		// Init textures
-		var image = new Image;
-		image.crossOrigin = '';
-		image.onload = function() {
-			gl = that.context;
+        // Init textures
+        var image = new Image;
+        image.crossOrigin = '';
+        image.onload = function () {
+            gl = that.context;
 
-			function isPowerOfTwo(x) {
-				return (x & (x - 1)) == 0;
-			}
-
-			function createSolidTexture(r, g, b, a) {
-			    var data = new Uint8Array([r, g, b, a]);
-			    var texture = gl.createTexture();
-			    gl.bindTexture(gl.TEXTURE_2D, texture);
-			    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, data);
-			    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-			    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-			    return texture;
-			}
-
-			var wrapping = (isPowerOfTwo(image.width) && isPowerOfTwo(image.height)) ? gl.REPEAT : gl.CLAMP_TO_EDGE;
-
-			that.backgroundWidth = image.width;
-			that.backgroundHeight = image.height;
-
-			var texture = gl.createTexture();
-
-			gl.bindTexture(gl.TEXTURE_2D, texture);
-			if (backgroundUrl) {
-			    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
-			    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-			    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-			    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapping);
-			    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapping);
-			    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-
-			} else {
-			    var rgb = /\(([^)]+)\)/.exec(backgroundColor);
-			    var data = new Uint8Array([rgb[0], rgb[1], rgb[2], 0]);
-			    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, data);
-			    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-			    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-			    //var rgb = /\(([^)]+)\)/.exec(backgroundColor);
-                //var data = new Uint8Array([rgb[0], rgb[1], rgb[2], 0]);
-                //gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, data);
-                //gl.fillStyle = backgroundColor;
-                //gl.fillRect(0, 0, image.width, image.height);
+            function isPowerOfTwo(x) {
+                return (x & (x - 1)) === 0;
             }
-			that.backgroundTexture = texture;
 
-			// Everything loaded successfully - hide the CSS background image
-			that.$el.css('backgroundImage', 'none');
-		};
+            var wrapping = (isPowerOfTwo(image.width) && isPowerOfTwo(image.height)) ? gl.REPEAT : gl.CLAMP_TO_EDGE;
 
-		if (backgroundUrl) {
+            that.backgroundWidth = image.width;
+            that.backgroundHeight = image.height;
+
+            var texture = gl.createTexture();
+
+            gl.bindTexture(gl.TEXTURE_2D, texture);
+            if (backgroundUrl) {
+                gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapping);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapping);
+                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+
+            } else {
+                var rgb = /\(([^)]+)\)/.exec(backgroundColor);
+                var data = new Uint8Array([rgb[0], rgb[1], rgb[2], 0]);
+                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, data);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+            }
+            that.backgroundTexture = texture;
+
+            // Everything loaded successfully - hide the CSS background image
+            that.$el.css('backgroundImage', 'none');
+        };
+
+        if (backgroundUrl) {
             image.src = backgroundUrl;
-		} else {
-		    image.backgroundColor = backgroundColor;
+        } else {
+            image.backgroundColor = backgroundColor;
             image.onload();
         }
 
-		this.visible = true;
+        this.visible = true;
 
-		gl.clearColor(0, 0, 0, 0);
-		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+        gl.clearColor(0, 0, 0, 0);
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
-		// Init animation
-		function step() {
-			that.step();
-			requestAnimationFrame(step);
-		}
+        // Init animation
+        function step() {
+            that.step();
+            requestAnimationFrame(step);
+        }
 
-		requestAnimationFrame(step);
-	};
+        requestAnimationFrame(step);
+    };
 
-	Ripples.DEFAULTS = {
-		resolution: 256,
-		dropRadius: 20,
-		perturbance: 0.03,
-		interactive: true
-	};
+    Ripples.DEFAULTS = {
+        resolution: 256,
+        dropRadius: 20,
+        perturbance: 0.03,
+        interactive: true
+    };
 
-	Ripples.prototype = {
+    Ripples.prototype = {
 
-		step: function() {
-			gl = this.context;
+        step: function () {
+            gl = this.context;
 
-			if (!this.visible || !this.backgroundTexture) return;
+            if (!this.visible || !this.backgroundTexture) return;
 
-			this.computeTextureBoundaries();
+            this.computeTextureBoundaries();
 
-			if (this.running) {
-				this.update();
-			}
+            if (this.running) {
+                this.update();
+            }
 
-			this.render();
-		},
+            this.render();
+        },
 
-		drawQuad: function() {
-			gl.bindBuffer(gl.ARRAY_BUFFER, this.quad);
-			gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
-			gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
-		},
+        drawQuad: function () {
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.quad);
+            gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+            gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
+        },
 
-		render: function() {
-			gl.viewport(0, 0, this.canvas.width, this.canvas.height);
+        render: function () {
+            gl.viewport(0, 0, this.canvas.width, this.canvas.height);
 
-			gl.enable(gl.BLEND);
-			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+            gl.enable(gl.BLEND);
+            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-			gl.useProgram(this.renderProgram.id);
+            gl.useProgram(this.renderProgram.id);
 
-			bindTexture(this.backgroundTexture, 0);
-			bindTexture(this.textures[0], 1);
+            bindTexture(this.backgroundTexture, 0);
+            bindTexture(this.textures[0], 1);
 
-			gl.uniform2fv(this.renderProgram.locations.topLeft, this.renderProgram.uniforms.topLeft);
-			gl.uniform2fv(this.renderProgram.locations.bottomRight, this.renderProgram.uniforms.bottomRight);
-			gl.uniform2fv(this.renderProgram.locations.containerRatio, this.renderProgram.uniforms.containerRatio);
-			gl.uniform1i(this.renderProgram.locations.samplerBackground, 0);
-			gl.uniform1i(this.renderProgram.locations.samplerRipples, 1);
+            gl.uniform2fv(this.renderProgram.locations.topLeft, this.renderProgram.uniforms.topLeft);
+            gl.uniform2fv(this.renderProgram.locations.bottomRight, this.renderProgram.uniforms.bottomRight);
+            gl.uniform2fv(this.renderProgram.locations.containerRatio, this.renderProgram.uniforms.containerRatio);
+            gl.uniform1i(this.renderProgram.locations.samplerBackground, 0);
+            gl.uniform1i(this.renderProgram.locations.samplerRipples, 1);
 
-			this.drawQuad();
-			gl.disable(gl.BLEND);
-		},
+            this.drawQuad();
+            gl.disable(gl.BLEND);
+        },
 
-		update: function() {
-			gl.viewport(0, 0, this.resolution, this.resolution);
+        update: function () {
+            gl.viewport(0, 0, this.resolution, this.resolution);
 
-			for (var i = 0; i < 2; i++) {
-				gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffers[i]);
-				bindTexture(this.textures[1-i]);
-				gl.useProgram(this.updateProgram[i].id);
+            for (var i = 0; i < 2; i++) {
+                gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffers[i]);
+                bindTexture(this.textures[1 - i]);
+                gl.useProgram(this.updateProgram[i].id);
 
-				this.drawQuad();
-			}
+                this.drawQuad();
+            }
 
-			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-		},
+            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        },
 
-		computeTextureBoundaries: function() {
-			var backgroundSize = this.$el.css('background-size');
-			var backgroundAttachment = this.$el.css('background-attachment');
-			var backgroundPosition = this.$el.css('background-position').split(' ');
+        computeTextureBoundaries: function () {
+            var backgroundSize = this.$el.css('background-size');
+            var backgroundAttachment = this.$el.css('background-attachment');
+            var backgroundPosition = this.$el.css('background-position').split(' ');
 
-			// Here the 'window' is the element which the background adapts to
-			// (either the chrome window or some element, depending on attachment)
-			var parElement = backgroundAttachment == 'fixed' ? $window : this.$el;
-			var winOffset = parElement.offset() || {left: pageXOffset, top: pageYOffset};
-			var winWidth = parElement.innerWidth();
-			var winHeight = parElement.innerHeight();
+            // Here the 'window' is the element which the background adapts to
+            // (either the chrome window or some element, depending on attachment)
+            var parElement = backgroundAttachment === 'fixed' ? $window : this.$el;
+            var winOffset = parElement.offset() || { left: pageXOffset, top: pageYOffset };
+            var winWidth = parElement.innerWidth();
+            var winHeight = parElement.innerHeight();
 
-			// TODO: background-clip
-			if (backgroundSize == 'cover') {
-				var scale = Math.max(winWidth / this.backgroundWidth, winHeight / this.backgroundHeight);
+            // TODO: background-clip
+            var backgroundWidth;
+            var backgroundHeight;
+            var scale;
 
-				var backgroundWidth = this.backgroundWidth * scale;
-				var backgroundHeight = this.backgroundHeight * scale;
-			}
-			else if (backgroundSize == 'contain') {
-				var scale = Math.min(winWidth / this.backgroundWidth, winHeight / this.backgroundHeight);
+            if (backgroundSize === 'cover') {
+                scale = Math.max(winWidth / this.backgroundWidth, winHeight / this.backgroundHeight);
+                backgroundWidth = this.backgroundWidth * scale;
+                backgroundHeight = this.backgroundHeight * scale;
+            }
+            else if (backgroundSize === 'contain') {
+                scale = Math.min(winWidth / this.backgroundWidth, winHeight / this.backgroundHeight);
+                backgroundWidth = this.backgroundWidth * scale;
+                backgroundHeight = this.backgroundHeight * scale;
+            }
+            else {
+                backgroundSize = backgroundSize.split(' ');
+                backgroundWidth = backgroundSize[0] || '';
+                backgroundHeight = backgroundSize[1] || backgroundWidth;
+                if (isPercentage(backgroundWidth)) backgroundWidth = winWidth * parseFloat(backgroundWidth) / 100;
+                else if (backgroundWidth !== 'auto') backgroundWidth = parseFloat(backgroundWidth);
 
-				var backgroundWidth = this.backgroundWidth * scale;
-				var backgroundHeight = this.backgroundHeight * scale;
-			}
-			else {
-				backgroundSize = backgroundSize.split(' ');
-				var backgroundWidth = backgroundSize[0] || '';
-				var backgroundHeight = backgroundSize[1] || backgroundWidth;
+                if (isPercentage(backgroundHeight)) backgroundHeight = winHeight * parseFloat(backgroundHeight) / 100;
+                else if (backgroundHeight !== 'auto') backgroundHeight = parseFloat(backgroundHeight);
 
-				if (isPercentage(backgroundWidth)) backgroundWidth = winWidth * parseFloat(backgroundWidth) / 100;
-				else if (backgroundWidth != 'auto') backgroundWidth = parseFloat(backgroundWidth);
+                if (backgroundWidth === 'auto' && backgroundHeight === 'auto') {
+                    backgroundWidth = this.backgroundWidth;
+                    backgroundHeight = this.backgroundHeight;
+                }
+                else {
+                    if (backgroundWidth === 'auto') backgroundWidth = this.backgroundWidth * (backgroundHeight / this.backgroundHeight);
+                    if (backgroundHeight === 'auto') backgroundHeight = this.backgroundHeight * (backgroundWidth / this.backgroundWidth);
+                }
+            }
 
-				if (isPercentage(backgroundHeight)) backgroundHeight = winHeight * parseFloat(backgroundHeight) / 100;
-				else if (backgroundHeight != 'auto') backgroundHeight = parseFloat(backgroundHeight);
+            // Compute backgroundX and backgroundY in page coordinates
+            var backgroundX = backgroundPosition[0] || '';
+            var backgroundY = backgroundPosition[1] || backgroundX;
 
-				if (backgroundWidth == 'auto' && backgroundHeight == 'auto') {
-					backgroundWidth = this.backgroundWidth;
-					backgroundHeight = this.backgroundHeight;
-				}
-				else {
-					if (backgroundWidth == 'auto') backgroundWidth = this.backgroundWidth * (backgroundHeight / this.backgroundHeight);
-					if (backgroundHeight == 'auto') backgroundHeight = this.backgroundHeight * (backgroundWidth / this.backgroundWidth);
-				}
-			}
+            if (backgroundX === 'left') backgroundX = winOffset.left;
+            else if (backgroundX === 'center') backgroundX = winOffset.left + winWidth / 2 - backgroundWidth / 2;
+            else if (backgroundX === 'right') backgroundX = winOffset.left + winWidth - backgroundWidth;
+            else if (isPercentage(backgroundX)) {
+                backgroundX = winOffset.left + (winWidth - backgroundWidth) * parseFloat(backgroundX) / 100;
+            }
+            else {
+                backgroundX = parseFloat(backgroundX);
+            }
 
-			// Compute backgroundX and backgroundY in page coordinates
-			var backgroundX = backgroundPosition[0] || '';
-			var backgroundY = backgroundPosition[1] || backgroundX;
+            if (backgroundY === 'top') backgroundY = winOffset.top;
+            else if (backgroundY === 'center') backgroundY = winOffset.top + winHeight / 2 - backgroundHeight / 2;
+            else if (backgroundY === 'bottom') backgroundY = winOffset.top + winHeight - backgroundHeight;
+            else if (isPercentage(backgroundY)) {
+                backgroundY = winOffset.top + (winHeight - backgroundHeight) * parseFloat(backgroundY) / 100;
+            }
+            else {
+                backgroundY = parseFloat(backgroundY);
+            }
 
-			if (backgroundX == 'left') backgroundX = winOffset.left;
-			else if (backgroundX == 'center') backgroundX = winOffset.left + winWidth / 2 - backgroundWidth / 2;
-			else if (backgroundX == 'right') backgroundX = winOffset.left + winWidth - backgroundWidth;
-			else if (isPercentage(backgroundX)) {
-				backgroundX = winOffset.left + (winWidth - backgroundWidth) * parseFloat(backgroundX) / 100;
-			}
-			else {
-				backgroundX = parseFloat(backgroundX);
-			}
+            var elementOffset = this.$el.offset();
 
-			if (backgroundY == 'top') backgroundY = winOffset.top;
-			else if (backgroundY == 'center') backgroundY = winOffset.top + winHeight / 2 - backgroundHeight / 2;
-			else if (backgroundY == 'bottom') backgroundY = winOffset.top + winHeight - backgroundHeight;
-			else if (isPercentage(backgroundY)) {
-				backgroundY = winOffset.top + (winHeight - backgroundHeight) * parseFloat(backgroundY) / 100;
-			}
-			else {
-				backgroundY = parseFloat(backgroundY);
-			}
-
-			var elementOffset = this.$el.offset();
-
-			this.renderProgram.uniforms.topLeft = new Float32Array([
+            this.renderProgram.uniforms.topLeft = new Float32Array([
 				(elementOffset.left - backgroundX) / backgroundWidth,
 				(elementOffset.top - backgroundY) / backgroundHeight
-			]);
-			this.renderProgram.uniforms.bottomRight = new Float32Array([
+            ]);
+            this.renderProgram.uniforms.bottomRight = new Float32Array([
 				this.renderProgram.uniforms.topLeft[0] + this.$el.innerWidth() / backgroundWidth,
 				this.renderProgram.uniforms.topLeft[1] + this.$el.innerHeight() / backgroundHeight
-			]);
+            ]);
 
-			var maxSide = Math.max(this.canvas.width, this.canvas.height);
+            var maxSide = Math.max(this.canvas.width, this.canvas.height);
 
-			this.renderProgram.uniforms.containerRatio = new Float32Array([
+            this.renderProgram.uniforms.containerRatio = new Float32Array([
 				this.canvas.width / maxSide,
 				this.canvas.height / maxSide
-			]);
-		},
+            ]);
+        },
 
-		initShaders: function() {
-			var vertexShader = [
+        initShaders: function () {
+            var vertexShader = [
 				'attribute vec2 vertex;',
 				'varying vec2 coord;',
 				'void main() {',
 					'coord = vertex * 0.5 + 0.5;',
 					'gl_Position = vec4(vertex, 0.0, 1.0);',
 				'}'
-			].join('\n');
+            ].join('\n');
 
-			this.dropProgram = createProgram(vertexShader, [
+            this.dropProgram = createProgram(vertexShader, [
 				'precision highp float;',
 
 				'const float PI = 3.141592653589793;',
@@ -429,10 +413,10 @@
 
 					'gl_FragColor = info;',
 				'}'
-			].join('\n'));
+            ].join('\n'));
 
-			this.updateProgram = [0,0];
-			this.updateProgram[0] = createProgram(vertexShader, [
+            this.updateProgram = [0, 0];
+            this.updateProgram[0] = createProgram(vertexShader, [
 				'precision highp float;',
 
 				'uniform sampler2D texture;',
@@ -459,10 +443,10 @@
 
 					'gl_FragColor = info;',
 				'}'
-			].join('\n'));
-			gl.uniform2fv(this.updateProgram[0].locations.delta, this.textureDelta);
+            ].join('\n'));
+            gl.uniform2fv(this.updateProgram[0].locations.delta, this.textureDelta);
 
-			this.updateProgram[1] = createProgram(vertexShader, [
+            this.updateProgram[1] = createProgram(vertexShader, [
 				'precision highp float;',
 
 				'uniform sampler2D texture;',
@@ -479,10 +463,10 @@
 
 					'gl_FragColor = info;',
 				'}'
-			].join('\n'));
-			gl.uniform2fv(this.updateProgram[1].locations.delta, this.textureDelta);
+            ].join('\n'));
+            gl.uniform2fv(this.updateProgram[1].locations.delta, this.textureDelta);
 
-			this.renderProgram = createProgram([
+            this.renderProgram = createProgram([
 				'precision highp float;',
 
 				'attribute vec2 vertex;',
@@ -497,7 +481,7 @@
 					'ripplesCoord = vec2(vertex.x, -vertex.y) * containerRatio * 0.5 + 0.5;',
 					'gl_Position = vec4(vertex.x, -vertex.y, 0.0, 1.0);',
 				'}'
-			].join('\n'), [
+            ].join('\n'), [
 				'precision highp float;',
 
 				'uniform sampler2D samplerBackground;',
@@ -511,126 +495,123 @@
 					'float specular = pow(max(0.0, dot(offset, normalize(vec2(-0.6, 1.0)))), 4.0);',
 					'gl_FragColor = texture2D(samplerBackground, backgroundCoord + offset * perturbance) + specular;',
 				'}'
-			].join('\n'));
-			gl.uniform1f(this.renderProgram.locations.perturbance, this.perturbance);
-		},
+            ].join('\n'));
+            gl.uniform1f(this.renderProgram.locations.perturbance, this.perturbance);
+        },
 
-		dropAtMouse: function(e, radius, strength) {
-			this.drop(
+        dropAtMouse: function (e, radius, strength) {
+            this.drop(
 				e.pageX - this.$el.offset().left,
 				e.pageY - this.$el.offset().top,
 				radius,
 				strength
 			);
-		},
+        },
 
-		drop: function(x, y, radius, strength) {
-			var that = this;
+        drop: function (x, y, radius, strength) {
+            var that = this,
+                gl = that.context;
 
-			gl = this.context;
+            var elWidth = this.$el.outerWidth();
+            var elHeight = this.$el.outerHeight();
+            var longestSide = Math.max(elWidth, elHeight);
 
-			var elWidth = this.$el.outerWidth();
-			var elHeight = this.$el.outerHeight();
-			var longestSide = Math.max(elWidth, elHeight);
+            radius = radius / longestSide;
 
-			radius = radius / longestSide;
-
-			var dropPosition = new Float32Array([
+            var dropPosition = new Float32Array([
 				(2 * x - elWidth) / longestSide,
 				(elHeight - 2 * y) / longestSide
-			]);
+            ]);
 
-			gl.viewport(0, 0, this.resolution, this.resolution);
+            gl.viewport(0, 0, this.resolution, this.resolution);
 
-			// Render onto texture/framebuffer 0
-			gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffers[0]);
+            // Render onto texture/framebuffer 0
+            gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffers[0]);
 
-			// Using texture 1
-			bindTexture(this.textures[1]);
+            // Using texture 1
+            bindTexture(this.textures[1]);
 
-			gl.useProgram(this.dropProgram.id);
-			gl.uniform2fv(this.dropProgram.locations.center, dropPosition);
-			gl.uniform1f(this.dropProgram.locations.radius, radius);
-			gl.uniform1f(this.dropProgram.locations.strength, strength);
+            gl.useProgram(this.dropProgram.id);
+            gl.uniform2fv(this.dropProgram.locations.center, dropPosition);
+            gl.uniform1f(this.dropProgram.locations.radius, radius);
+            gl.uniform1f(this.dropProgram.locations.strength, strength);
 
-			this.drawQuad();
+            this.drawQuad();
 
-			// Switch textures
-			var t = this.framebuffers[0]; this.framebuffers[0] = this.framebuffers[1]; this.framebuffers[1] = t;
-			t = this.textures[0]; this.textures[0] = this.textures[1]; this.textures[1] = t;
+            // Switch textures
+            var t = this.framebuffers[0]; this.framebuffers[0] = this.framebuffers[1]; this.framebuffers[1] = t;
+            t = this.textures[0]; this.textures[0] = this.textures[1]; this.textures[1] = t;
 
-			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-		},
+            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        },
 
-		// Actions
-		destroy: function() {
-			this.canvas.remove();
-			this.$el.off('.ripples');
-			this.$el.css('backgroundImage', '');
-			this.$el.removeClass('jquery-ripples').removeData('ripples');
-		},
+        // Actions
+        destroy: function () {
+            this.canvas.remove();
+            this.$el.off('.ripples');
+            this.$el.css('backgroundImage', '');
+            this.$el.removeClass('jquery-ripples').removeData('ripples');
+        },
 
-		show: function() {
-			this.$canvas.show();
-			this.$el.css('backgroundImage', 'none');
-			this.visible = true;
-		},
+        show: function () {
+            this.$canvas.show();
+            this.$el.css('backgroundImage', 'none');
+            this.visible = true;
+        },
 
-		hide: function() {
-			this.$canvas.hide();
-			this.$el.css('backgroundImage', '');
-			this.visible = false;
-		},
+        hide: function () {
+            this.$canvas.hide();
+            this.$el.css('backgroundImage', '');
+            this.visible = false;
+        },
 
-		pause: function() {
-			this.running = false;
-		},
+        pause: function () {
+            this.running = false;
+        },
 
-		play: function() {
-			this.running = true;
-		},
+        play: function () {
+            this.running = true;
+        },
 
-		set: function(property, value)
-		{
-			switch (property)
-			{
-				case 'interactive':
-					this.interactive = value;
-					break;
-			}
-		}
-	};
+        set: function (property, value) {
+            switch (property) {
+                case 'interactive':
+                    this.interactive = value;
+                    break;
+            }
+        }
+    };
 
-	// RIPPLES PLUGIN DEFINITION
-	// ==========================
+    // RIPPLES PLUGIN DEFINITION
+    // ==========================
 
-	var old = $.fn.ripples;
+    var old = $.fn.ripples;
 
-	$.fn.ripples = function(option) {
-		if (!supportsWebGL) throw new Error('Your browser does not support WebGL or the OES_texture_float extension.');
+    $.fn.ripples = function (option) {
+        if (!supportsWebGL) throw new Error('Your browser does not support WebGL or the OES_texture_float extension.');
 
-		var args = (arguments.length > 1) ? Array.prototype.slice.call(arguments, 1) : undefined;
+        var args = (arguments.length > 1) ? Array.prototype.slice.call(arguments, 1) : undefined;
 
-		return this.each(function() {
-			var $this   = $(this);
-			var data    = $this.data('ripples');
-			var options = $.extend({}, Ripples.DEFAULTS, $this.data(), typeof option == 'object' && option);
+        return this.each(function () {
+            var $this = $(this);
+            var data = $this.data('ripples');
+            var options = $.extend({}, Ripples.DEFAULTS, $this.data(), typeof option == 'object' && option);
 
-			if (!data && typeof option == 'string') return;
-			if (!data) $this.data('ripples', (data = new Ripples(this, options)));
-			else if (typeof option == 'string') Ripples.prototype[option].apply(data, args);
-		});
-	}
+            if (!data && typeof option == 'string') return;
+            if (!data) $this.data('ripples', (data = new Ripples(this, options)));
+            else if (typeof option == 'string') Ripples.prototype[option].apply(data, args);
+        });
+    }
 
-	$.fn.ripples.Constructor = Ripples;
+    $.fn.ripples.Constructor = Ripples;
 
 
-	// RIPPLES NO CONFLICT
-	// ====================
+    // RIPPLES NO CONFLICT
+    // ====================
 
-	$.fn.ripples.noConflict = function() {
-		$.fn.ripples = old;
-		return this;
-	}
+    $.fn.ripples.noConflict = function () {
+        $.fn.ripples = old;
+        return this;
+    }
 
 }(window.jQuery);

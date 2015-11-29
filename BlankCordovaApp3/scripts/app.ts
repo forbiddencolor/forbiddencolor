@@ -1,208 +1,16 @@
 ﻿/// <reference path="typings/jquery/jquery.d.ts" />
 /// <reference path="typings/jquery.ripples/jquery.ripples.d.ts" />
+/// <reference path="typings/ripple/ripple.d.ts" />
 
-import {ILiteEvent, LiteEvent} from './LiteEvents';
+import {Frame} from "./Frame";
 import * as $ from "jquery";
-// import $ = require('jquery');
-
-class NextFrameEventArgs {
-    public Correct: boolean;
-    
-    constructor(correct: boolean) {
-        this.Correct = correct;
-    }
-}
-
-class TimeBonusEventArgs {
-    public ExtraTime: number;
-
-    constructor(extraTime: number) {
-        this.ExtraTime = extraTime;
-    }
-}
-
-class GameEndedEventArgs {
-    public Score: number;
-
-    constructor(score: number) {
-        this.Score = score;
-    }
-}
-
-class CountDownEventArgs {
-    public CountDown: number;
-
-    constructor(countDown: number) {
-        this.CountDown = countDown;
-    }
-}
-
-class GameStartedEventArgs {
-
-    constructor() {
-    }
-}
-
-class TimerUpdatedEventArgs {
-
-    constructor() {
-    }
-}
-
-class Color {
-    public name: string;
-    public color: string;
-}
-
-class Frame {
-    private _interval: any;
-    private onNextFrame = new LiteEvent<NextFrameEventArgs>();
-    private onTimeBonus = new LiteEvent<TimeBonusEventArgs>();
-    private onGameStarted = new LiteEvent<GameStartedEventArgs>();
-    private onGameEnded = new LiteEvent<GameEndedEventArgs>();
-    private onTimerUpdated = new LiteEvent<TimerUpdatedEventArgs>();
-    private onCountDown = new LiteEvent<CountDownEventArgs>();
-    private _countdownInterval: any;
-
-    public Score: number;
-    public CurrentColor: Color;
-    public ForbiddenColor: Color;
-    public PossibleColors: Color[];
-    public IsStarted: boolean;
-    public TimeLeft: number;
-    public CurrentStreak: number;
-    public CountDown: number;
-
-    public get NextFrame(): ILiteEvent<NextFrameEventArgs> { return this.onNextFrame; }
-    public get TimeBonus(): ILiteEvent<TimeBonusEventArgs> { return this.onTimeBonus; }
-    public get GameStarted(): ILiteEvent<GameStartedEventArgs> { return this.onGameStarted; }
-    public get GameEnded(): ILiteEvent<GameEndedEventArgs> { return this.onGameEnded; }
-    public get TimerUpdated(): ILiteEvent<TimerUpdatedEventArgs> { return this.onTimerUpdated; }
-    public get CountDownUpdated(): ILiteEvent<CountDownEventArgs> { return this.onCountDown; }
-
-    constructor() {
-        this.PossibleColors = [
-            { color: "#10E5E5", name: "Cyan" }, // 
-            { color: "#FF7F00", name: "Orange" }, // orange
-            { color: "#AA2AFF", name: "Purple" }, // purple
-            { color: "#00CC00", name: "Green" }, // green
-            { color: "#FF0000", name: "Red" }, // red
-            { color: "#002AFF", name: "Blue" }, // blue
-            { color: "#FF55FF", name: "Pink" } // pink
-        ];
-
-        this.CurrentColor = this.pickColor();
-        this.ForbiddenColor = this.CurrentColor;
-        this.CurrentStreak = 0;
-        this.CountDown = 0;
-        this.Score = 0;
-        this.TimeLeft = 0;
-    }
-
-    public start() {
-        if (this.IsStarted) return;
-
-        this.CurrentStreak = 0;
-        this.Score = 0;
-        this.TimeLeft = 10;
-
-        this.ForbiddenColor = this.pickColor();
-        this.CurrentColor = this.ForbiddenColor;
-
-        this.CountDown = 2;
-
-        if (this._countdownInterval) {
-            clearInterval(this._countdownInterval);
-        }
-
-        if (this._interval) {
-            clearInterval(this._interval);
-        }
-
-        this._countdownInterval = setInterval(() => {
-            this.CountDown -= 1;
-            if (this.CountDown <= 0) {
-                clearInterval(this._countdownInterval);
-                this.CurrentColor = this.pickColor();
-                this._interval = setInterval(() => { this.updateInterval(); }, 100);
-            }
-
-            this.onCountDown.trigger(new CountDownEventArgs(this.CountDown));
-        }, 1000);
-
-        this.onGameStarted.trigger(new GameStartedEventArgs());
-        this.onCountDown.trigger(new CountDownEventArgs(this.CountDown));
-    }
-
-    public endGame() {
-        var score = this.Score;
-
-        this.TimeLeft = 0;
-        clearInterval(this._interval);
-        this.IsStarted = false;
-        this.onGameEnded.trigger(new GameEndedEventArgs(score));
-    }
-
-    public swipe() {
-        if (!this.IsStarted) return;
-
-        if (this.CurrentColor === this.ForbiddenColor) {
-            this.success();
-        } else {
-            this.missClick();
-        }
-    }
-
-    public tap() {
-        if (!this.IsStarted) return;
-
-        if (this.CurrentColor === this.ForbiddenColor) {
-            this.missClick();
-        } else {
-            this.success();
-        }
-    }
-
-    public pickColor(): Color {
-        var num = Math.floor((Math.random() * this.PossibleColors.length));
-        var color = this.PossibleColors[num];
-        return color;
-    }
-
-    success() {
-        this.Score++;
-        this.CurrentStreak++;
-
-        if (this.CurrentStreak % 5 === 0) {
-            this.TimeLeft += 1;
-            this.onTimeBonus.trigger(new TimeBonusEventArgs(1));
-        }
-
-        this.CurrentColor = this.pickColor();
-        this.onNextFrame.trigger(new NextFrameEventArgs(true));
-    }
-
-    missClick() {
-        this.Score = 0;
-        this.CurrentStreak = 0;
-        this.CurrentColor = this.pickColor();
-        this.onNextFrame.trigger(new NextFrameEventArgs(false));
-    }
-
-    updateInterval() {
-        this.IsStarted = true;
-        this.TimeLeft -= 0.1;
-
-        if (this.TimeLeft <= 0) {
-            this.endGame();
-            return;
-        }
-
-        this.onTimerUpdated.trigger(new TimerUpdatedEventArgs());
-    }
-}
 
 module App {
+    var currentRipples = 0;
+    var maxRipples = 30;
+    var skipRipple = false;
+    var rippleTimeout = null;
+
     export function initialize() {
         document.addEventListener("deviceready", onDeviceReady, false);
     }
@@ -227,7 +35,8 @@ module App {
                 startX = touchStart.pageX,
                 startY = touchStart.pageY,
                 lastX = startX,
-                lastY = startY;
+                lastY = startY,
+                touchStartTime = new Date().getTime();
 
             function removeTouchHandler() {
                 $("body").off("touchmove", moveHandler).off("touchend", endHandler);
@@ -236,18 +45,20 @@ module App {
             function endHandler(endEvent) {
                 removeTouchHandler();
 
-                if (Math.abs(lastX - startX) > 50 ||
-                    Math.abs(lastY - startY) > 50) {
+                if (Math.abs(lastX - startX) > 75 ||
+                    Math.abs(lastY - startY) > 75) {
                     if (frame.IsStarted) {
                         frame.swipe();
+                        waterRipple(lastX, lastY, 15, 0.05, true);
                     }
                 } else {
                     if (frame.IsStarted) {
                         frame.tap();
                     }
 
-                    ripple(lastX, lastY, 15, 0.02);
-                    ripple(lastX, lastY, 20, 0.04);
+                    // ripple(lastX, lastY, 20, 0.04);
+                    // ripple(lastX, lastY, 25, 0.06);
+                    ripple();
                 }
             };
 
@@ -256,16 +67,26 @@ module App {
                 lastX = touchMove.pageX;
                 lastY = touchMove.pageY;
 
+                var movedX = Math.abs(lastX - startX);
+                var movedY = Math.abs(lastY - startY);
+                var timeDiff = new Date().getTime() - touchStartTime;
+
+                if (timeDiff < 50 &&
+                    (movedX > 100 || movedY > 100)) {
+                    
+                    waterRipple(lastX - Math.floor(movedX / 2), lastY - Math.floor(movedY / 2), 15, 0.05, true);
+                }
+
                 if (Math.abs(lastX - startX) > 10 ||
                     Math.abs(lastY - startY) > 10) {
 
-                    ripple(lastX, lastY, 20, 0.04);
+                    waterRipple(lastX, lastY, 15, 0.05);
                 }
             }
 
-            ripple(startX, startY, 20, 0.04);
-            ripple(startX, startY, 25, 0.06);
-
+            // ripple(startX, startY, 25, 0.06);
+            // ripple(startX, startY, 30, 0.08);
+            
             $("body").on("touchmove", moveHandler).on("touchend", endHandler);
         });
 
@@ -359,16 +180,51 @@ module App {
         $('body').ripples('destroy');
 
         $('body').ripples({
-            resolution: 512,
+            resolution: 256,
             interactive: false
         });
     }
 
-    function ripple(x: number, y: number, radius: number, strength: number, timeout?: number) {
-        $("body").queue((next) => {
-            $("body").ripples("drop", x, y, radius, strength);
-            next();
-        });
+    function ripple() {
+        $("body").ripple({});
+    }
+
+    function waterRipple(x: number, y: number, radius: number, strength: number, force: boolean = false) {
+        if (!force && currentRipples > maxRipples) {
+            if (rippleTimeout) {
+                clearTimeout(rippleTimeout);
+            }
+
+            rippleTimeout = setTimeout(() => {
+                $("body").ripples("drop", x, y, radius, strength);
+            }, 50);
+
+            return;
+        }
+
+        $("body").ripples("drop", x, y, radius, strength);
+        currentRipples++;
+
+        setTimeout(() => {
+            currentRipples--;
+        }, 1000);
+    }
+
+    function animLoop(render, speed: number = (1000 / 60)) {
+        var running, lastFrame = +new Date,
+            raf = window.requestAnimationFrame;
+        function loop(now) {
+            // stop the loop if render returned false
+            if (running !== false) {
+                raf(loop);
+                var deltaT = now - lastFrame;
+                if (deltaT < speed) {
+                    running = render(deltaT);
+                }
+                lastFrame = now;
+            }
+        }
+        loop(lastFrame);
     }
 
     function onPause() {
