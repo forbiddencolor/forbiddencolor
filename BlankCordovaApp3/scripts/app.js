@@ -1,22 +1,5 @@
 /// <reference path="typings/jquery.ripples/jquery.ripples.d.ts" />
-var BlankCordovaApp3;
-(function (BlankCordovaApp3) {
-    "use strict";
-    var LiteEvent = (function () {
-        function LiteEvent() {
-            this.handlers = [];
-        }
-        LiteEvent.prototype.on = function (handler) {
-            this.handlers.push(handler);
-        };
-        LiteEvent.prototype.off = function (handler) {
-            this.handlers = this.handlers.filter(function (h) { return h !== handler; });
-        };
-        LiteEvent.prototype.trigger = function (data) {
-            this.handlers.slice(0).forEach(function (h) { return h(data); });
-        };
-        return LiteEvent;
-    })();
+define(["require", "exports", './LiteEvents'], function (require, exports, LiteEvents_1) {
     var NextFrameEventArgs = (function () {
         function NextFrameEventArgs(correct) {
             this.Correct = correct;
@@ -58,12 +41,12 @@ var BlankCordovaApp3;
     })();
     var Frame = (function () {
         function Frame() {
-            this.onNextFrame = new LiteEvent();
-            this.onTimeBonus = new LiteEvent();
-            this.onGameStarted = new LiteEvent();
-            this.onGameEnded = new LiteEvent();
-            this.onTimerUpdated = new LiteEvent();
-            this.onCountDown = new LiteEvent();
+            this.onNextFrame = new LiteEvents_1.LiteEvent();
+            this.onTimeBonus = new LiteEvents_1.LiteEvent();
+            this.onGameStarted = new LiteEvents_1.LiteEvent();
+            this.onGameEnded = new LiteEvents_1.LiteEvent();
+            this.onTimerUpdated = new LiteEvents_1.LiteEvent();
+            this.onCountDown = new LiteEvents_1.LiteEvent();
             this.PossibleColors = [
                 { color: "#10E5E5", name: "Cyan" },
                 { color: "#FF7F00", name: "Orange" },
@@ -197,12 +180,12 @@ var BlankCordovaApp3;
         };
         return Frame;
     })();
-    var Application;
-    (function (Application) {
+    var App;
+    (function (App) {
         function initialize() {
             document.addEventListener("deviceready", onDeviceReady, false);
         }
-        Application.initialize = initialize;
+        App.initialize = initialize;
         function onDeviceReady() {
             // Handle the Cordova pause and resume events
             document.addEventListener("pause", onPause, false);
@@ -317,9 +300,7 @@ var BlankCordovaApp3;
         function onResume() {
             // TODO: This application has been reactivated. Restore application state here.
         }
-    })(Application = BlankCordovaApp3.Application || (BlankCordovaApp3.Application = {}));
-    window.onload = function () {
-        Application.initialize();
-    };
-})(BlankCordovaApp3 || (BlankCordovaApp3 = {}));
-//# sourceMappingURL=appBundle.js.map
+    })(App || (App = {}));
+    return App;
+});
+//# sourceMappingURL=app.js.map
