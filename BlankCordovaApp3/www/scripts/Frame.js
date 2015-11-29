@@ -104,6 +104,8 @@ define(["require", "exports", './LiteEvents'], function (require, exports, LiteE
             var _this = this;
             if (this.IsStarted)
                 return;
+            this.IsStarted = true;
+            this.IsPlaying = false;
             this.CurrentStreak = 0;
             this.Score = 0;
             this.TimeLeft = 10;
@@ -121,7 +123,8 @@ define(["require", "exports", './LiteEvents'], function (require, exports, LiteE
                 if (_this.CountDown <= 0) {
                     clearInterval(_this._countdownInterval);
                     _this.CurrentColor = _this.pickColor();
-                    _this._interval = setInterval(function () { _this.updateInterval(); }, 100);
+                    _this.IsPlaying = true;
+                    _this.animLoop(_this.gameLoop, 100);
                 }
                 _this.onCountDown.trigger(new CountDownEventArgs(_this.CountDown));
             }, 1000);
@@ -131,12 +134,13 @@ define(["require", "exports", './LiteEvents'], function (require, exports, LiteE
         Frame.prototype.endGame = function () {
             var score = this.Score;
             this.TimeLeft = 0;
-            clearInterval(this._interval);
+            //clearInterval(this._interval);
             this.IsStarted = false;
+            this.IsPlaying = false;
             this.onGameEnded.trigger(new GameEndedEventArgs(score));
         };
         Frame.prototype.swipe = function () {
-            if (!this.IsStarted)
+            if (!this.IsPlaying)
                 return;
             if (this.CurrentColor === this.ForbiddenColor) {
                 this.success();
@@ -146,7 +150,7 @@ define(["require", "exports", './LiteEvents'], function (require, exports, LiteE
             }
         };
         Frame.prototype.tap = function () {
-            if (!this.IsStarted)
+            if (!this.IsPlaying)
                 return;
             if (this.CurrentColor === this.ForbiddenColor) {
                 this.missClick();
@@ -177,13 +181,42 @@ define(["require", "exports", './LiteEvents'], function (require, exports, LiteE
             this.onNextFrame.trigger(new NextFrameEventArgs(false));
         };
         Frame.prototype.updateInterval = function () {
-            this.IsStarted = true;
             this.TimeLeft -= 0.1;
             if (this.TimeLeft <= 0) {
                 this.endGame();
                 return;
             }
             this.onTimerUpdated.trigger(new TimerUpdatedEventArgs());
+        };
+        Frame.prototype.gameLoop = function (delta) {
+            if (!this.IsStarted)
+                return false;
+            this.TimeLeft -= delta / 1000;
+            if (this.TimeLeft <= 0) {
+                this.endGame();
+                return false;
+            }
+            this.onTimerUpdated.trigger(new TimerUpdatedEventArgs());
+            return true;
+        };
+        Frame.prototype.animLoop = function (render, speed, clamp) {
+            if (speed === void 0) { speed = (1000 / 30); }
+            if (clamp === void 0) { clamp = 500; }
+            function timestamp() {
+                return window.performance && window.performance.now ? window.performance.now() : +new Date;
+            }
+            var running, lastFrame = timestamp(), raf = window.requestAnimationFrame, that = this;
+            function loop(now) {
+                if (running !== false) {
+                    raf(loop);
+                    var elapsed = Math.min(1000, now - lastFrame);
+                    if ((speed <= 0 || elapsed > speed) && elapsed < clamp) {
+                        lastFrame = now - (elapsed % speed);
+                        running = render.bind(that)(elapsed);
+                    }
+                }
+            }
+            loop(lastFrame);
         };
         return Frame;
     })();

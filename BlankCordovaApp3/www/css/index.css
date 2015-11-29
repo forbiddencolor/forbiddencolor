@@ -1,4 +1,23 @@
-﻿@font-face {
+﻿* {
+    /* prevent callout when holding tap on links (the native dialog that comes up) */
+    -webkit-touch-callout: none;
+    /* prevent webkit from resizing text to fit */
+    -webkit-text-size-adjust: none;
+    /* make transparent link selection, adjust last value opacity 0 to 1.0 */
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
+    /* prevent copy paste, to allow, change 'none' to 'text' */
+    -webkit-user-select: none;
+}
+
+input[type="checkbox"] {
+    -webkit-appearance: none;
+}
+
+input::-webkit-input-placeholder {
+    opacity: .8;
+}
+
+@font-face {
     font-family: circulat;
     src: url(../fonts/circulat.ttf);
 }
@@ -79,6 +98,9 @@ html, body {
 }
 
 #oops {
+}
+
+.oops {
     top: 30%;
 }
 
@@ -91,7 +113,7 @@ html, body {
     }
 
 #forbiddencolor {
-    top: 50%;
+    top: 40%;
 }
 
     #forbiddencolor span {
@@ -106,6 +128,12 @@ html, body {
     #timer > span {
     }
 
+#countdown {
+    
+}
+
+    #countdown > span {
+    }
 
 #currentforbiddencolor {
     display: none;
@@ -120,7 +148,7 @@ footer {
 }
 
 .howtoplay {
-    margin: 0 8px 0 8px;
+    margin: 20px 8px 0 8px;
 }
 
     .howtoplay span {
@@ -166,4 +194,27 @@ button:focus {
     font-weight: normal;
     font-size: 1.3em;
     padding: 0 0 0 10px;
+}
+
+.ripple {
+    position: absolute;
+    background: rgba(0,0,0,.25);
+    border-radius: 100%;
+    -webkit-transform: scale(0);
+    -ms-transform: scale(0);
+    transform: scale(0);
+    pointer-events: none;
+}
+
+    .ripple.show {
+        -webkit-animation: ripple .5s ease-out;
+        animation: ripple .5s ease-out;
+    }
+
+@keyframes ripple {
+    to {
+        -webkit-transform: scale(1.5);
+        transform: scale(1.5);
+        opacity: 0;
+    }
 }

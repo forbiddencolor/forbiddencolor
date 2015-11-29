@@ -509,8 +509,8 @@
         },
 
         drop: function (x, y, radius, strength) {
-            var that = this,
-                gl = that.context;
+            var that = this;
+            gl = this.context;
 
             var elWidth = this.$el.outerWidth();
             var elHeight = this.$el.outerHeight();
