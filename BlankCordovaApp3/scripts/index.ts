@@ -1,4 +1,6 @@
-﻿module BlankCordovaApp3 {
+﻿/// <reference path="typings/jquery.ripples/jquery.ripples.d.ts" />
+
+module BlankCordovaApp3 {
     "use strict";
 
     interface ILiteEvent<T> {
@@ -85,7 +87,7 @@
         public CurrentColor: Color;
         public ForbiddenColor: Color;
         public PossibleColors: Color[];
-        public Started: boolean;
+        public IsStarted: boolean;
         public TimeLeft: number;
         public CurrentStreak: number;
         public CountDown: number;
@@ -117,7 +119,7 @@
         }
 
         public start() {
-            if (this.Started) return;
+            if (this.IsStarted) return;
 
             this.CurrentStreak = 0;
             this.Score = 0;
@@ -156,12 +158,12 @@
 
             this.TimeLeft = 0;
             clearInterval(this._interval);
-            this.Started = false;
+            this.IsStarted = false;
             this.onGameEnded.trigger(new GameEndedEventArgs(score));
         }
 
         public swipe() {
-            if (!this.Started) return;
+            if (!this.IsStarted) return;
 
             if (this.CurrentColor === this.ForbiddenColor) {
                 this.success();
@@ -171,7 +173,7 @@
         }
 
         public tap() {
-            if (!this.Started) return;
+            if (!this.IsStarted) return;
 
             if (this.CurrentColor === this.ForbiddenColor) {
                 this.missClick();
@@ -182,7 +184,6 @@
 
         public pickColor(): Color {
             var num = Math.floor((Math.random() * this.PossibleColors.length));
-            console.log('picked: ' + num);
             var color = this.PossibleColors[num];
             return color;
         }
@@ -208,7 +209,7 @@
         }
 
         updateInterval() {
-            this.Started = true;
+            this.IsStarted = true;
             this.TimeLeft -= 0.1;
 
             if (this.TimeLeft <= 0) {
@@ -239,19 +240,35 @@
             // $("#timer > span").text(frame.TimeLeft);
 
             $("body").on("click", e => {
-                // frame.tap();
-                // $("body").css("background-color", frame.CurrentColor.color);
-                // $("#score > span").text(frame.Score);
+                if (frame.IsStarted) {
+                    // $('body').ripples("drop", e.clientX, e.clientY, 20, 0.03);
+                    // $('body').ripples("drop", e.clientX, e.clientY, 15, 0.02);
+                }
+            });
+
+            $("body").on("swipemove", (event, args) => {
+                if (!frame.IsStarted) return;
+
+                var clientX = args.originalEvent.clientX;
+                var clientY = args.originalEvent.clientY;
+
+                if (args.delta[0].moved > 5) {                    
+                    $('body').ripples("drop", clientX, clientY, 10, 0.04);
+                    $('body').ripples("drop", clientX, clientY, 13, 0.06);
+                }
             });
 
             $("body").on("click swipeone swipetwo", e => {
+                if (!frame.IsStarted) return;
+
                 if (e.type === "click") {
                     frame.tap();
                 } else {
                     frame.swipe();                    
                 }
-                // $("body").css("background-color", frame.CurrentColor.color);
-                // $("#score > span").text(frame.Score);
+
+                $('body').ripples("drop", e.clientX, e.clientY, 10, 0.04);
+                $('body').ripples("drop", e.clientX, e.clientY, 13, 0.06);
             });
 
             $("#startbutton").on("click", e => {
@@ -331,6 +348,11 @@
                 }, popupmesssagedelay);
 
                 $("body").css("background-color", frame.CurrentColor.color);
+            });
+
+            $('body').ripples({
+                resolution: 512,
+                interactive: false
             });
         }
 
