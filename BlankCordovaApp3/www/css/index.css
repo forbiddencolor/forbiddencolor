@@ -64,11 +64,14 @@ html, body {
     }
 
 #plusscore {
+}
+
+.plusscore {
     top: 20px;
     text-align: right;
 }
 
-    #plusscore > span {
+    .plusscore > span {
         font-size: 0.7em;
     }
 

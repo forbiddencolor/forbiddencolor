@@ -4,10 +4,6 @@
 define(["require", "exports", "./Frame", "jquery"], function (require, exports, Frame_1, $) {
     var App;
     (function (App) {
-        var currentRipples = 0;
-        var maxRipples = 30;
-        var skipRipple = false;
-        var rippleTimeout = null;
         function initialize() {
             document.addEventListener("deviceready", onDeviceReady, false);
         }
@@ -23,6 +19,8 @@ define(["require", "exports", "./Frame", "jquery"], function (require, exports, 
             // $("#timer > span").text(frame.TimeLeft);
             $("body").on("touchstart", function (e) {
                 e.preventDefault();
+                if (!frame.IsStarted)
+                    return;
                 var touchStart = e.originalEvent.touches[0], startX = touchStart.pageX, startY = touchStart.pageY, lastX = startX, lastY = startY, touchStartTime = new Date().getTime();
                 function removeTouchHandler() {
                     $("body").off("touchmove", moveHandler).off("touchend", endHandler);
@@ -34,15 +32,13 @@ define(["require", "exports", "./Frame", "jquery"], function (require, exports, 
                         Math.abs(lastY - startY) > 75) {
                         if (frame.IsStarted) {
                             frame.swipe();
-                            waterRipple(lastX, lastY, 15, 0.05, true);
+                            waterRipple(lastX, lastY, 20, 0.2);
                         }
                     }
                     else {
                         if (frame.IsStarted) {
                             frame.tap();
                         }
-                        // ripple(lastX, lastY, 20, 0.04);
-                        // ripple(lastX, lastY, 25, 0.06);
                         ripple();
                     }
                 }
@@ -56,15 +52,13 @@ define(["require", "exports", "./Frame", "jquery"], function (require, exports, 
                     var timeDiff = new Date().getTime() - touchStartTime;
                     if (timeDiff < 50 &&
                         (movedX > 100 || movedY > 100)) {
-                        waterRipple(lastX - Math.floor(movedX / 2), lastY - Math.floor(movedY / 2), 15, 0.05, true);
+                        waterRipple(lastX - Math.floor(movedX / 2), lastY - Math.floor(movedY / 2), 20, 0.2);
                     }
                     if (Math.abs(lastX - startX) > 10 ||
                         Math.abs(lastY - startY) > 10) {
-                        waterRipple(lastX, lastY, 15, 0.05);
+                        waterRipple(lastX, lastY, 20, 0.2);
                     }
                 }
-                // ripple(startX, startY, 25, 0.06);
-                // ripple(startX, startY, 30, 0.08);
                 $("body").on("touchmove", moveHandler).on("touchend", endHandler);
             });
             $("#startbutton").on("touchstart", function (e) {
@@ -81,11 +75,13 @@ define(["require", "exports", "./Frame", "jquery"], function (require, exports, 
             frame.NextFrame.on(function (x) {
                 $("#score > span").text(frame.Score);
                 if (x.Correct) {
-                    $("#plusscore > span").text("+1");
-                    $("#plusscore").css("display", "block");
-                    $("#plusscore").addClass("animated fadeOutDown");
+                    var score = $('<div class="plusscore popupmessage" style="display: block"><span></span></div>');
+                    $("> span", score).text("+1");
+                    $("#plusscore").append(score);
+                    score.addClass("animated fadeOutDown");
                     setTimeout(function () {
-                        $("#plusscore").css("display", "none");
+                        score.remove();
+                        // $("#plusscore").css("display", "none");
                     }, popupmesssagedelay);
                 }
                 else {
@@ -139,33 +135,28 @@ define(["require", "exports", "./Frame", "jquery"], function (require, exports, 
                 $("body").css("background-color", frame.CurrentColor.color);
             });
             resetRipples();
+            animLoop(renderRipple);
         }
         function resetRipples() {
             $('body').ripples('destroy');
             $('body').ripples({
-                resolution: 256,
+                resolution: 512,
                 interactive: false
             });
         }
         function ripple() {
             $("body").ripple({});
         }
-        function waterRipple(x, y, radius, strength, force) {
-            if (force === void 0) { force = false; }
-            if (!force && currentRipples > maxRipples) {
-                if (rippleTimeout) {
-                    clearTimeout(rippleTimeout);
-                }
-                rippleTimeout = setTimeout(function () {
-                    $("body").ripples("drop", x, y, radius, strength);
-                }, 50);
-                return;
+        var currentRipple = [];
+        function renderRipple() {
+            if (currentRipple.length > 0) {
+                var ripple = currentRipple.pop();
+                currentRipple = [];
+                $("body").ripples("drop", ripple.x, ripple.y, ripple.radius, ripple.strength);
             }
-            $("body").ripples("drop", x, y, radius, strength);
-            currentRipples++;
-            setTimeout(function () {
-                currentRipples--;
-            }, 1000);
+        }
+        function waterRipple(x, y, radius, strength) {
+            currentRipple.push({ x: x, y: y, radius: radius, strength: strength });
         }
         function animLoop(render, speed) {
             if (speed === void 0) { speed = (1000 / 60); }

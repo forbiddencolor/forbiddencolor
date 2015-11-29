@@ -6,11 +6,6 @@ import {Frame} from "./Frame";
 import * as $ from "jquery";
 
 module App {
-    var currentRipples = 0;
-    var maxRipples = 30;
-    var skipRipple = false;
-    var rippleTimeout = null;
-
     export function initialize() {
         document.addEventListener("deviceready", onDeviceReady, false);
     }
@@ -31,6 +26,8 @@ module App {
         $("body").on("touchstart", (e: any) => {
             e.preventDefault();
 
+            if (!frame.IsStarted) return;
+
             var touchStart = e.originalEvent.touches[0],
                 startX = touchStart.pageX,
                 startY = touchStart.pageY,
@@ -49,15 +46,13 @@ module App {
                     Math.abs(lastY - startY) > 75) {
                     if (frame.IsStarted) {
                         frame.swipe();
-                        waterRipple(lastX, lastY, 15, 0.05, true);
+                        waterRipple(lastX, lastY, 20, 0.2);
                     }
                 } else {
                     if (frame.IsStarted) {
                         frame.tap();
                     }
 
-                    // ripple(lastX, lastY, 20, 0.04);
-                    // ripple(lastX, lastY, 25, 0.06);
                     ripple();
                 }
             };
@@ -73,20 +68,17 @@ module App {
 
                 if (timeDiff < 50 &&
                     (movedX > 100 || movedY > 100)) {
-                    
-                    waterRipple(lastX - Math.floor(movedX / 2), lastY - Math.floor(movedY / 2), 15, 0.05, true);
+
+                    waterRipple(lastX - Math.floor(movedX / 2), lastY - Math.floor(movedY / 2), 20, 0.2);
                 }
 
                 if (Math.abs(lastX - startX) > 10 ||
                     Math.abs(lastY - startY) > 10) {
 
-                    waterRipple(lastX, lastY, 15, 0.05);
+                    waterRipple(lastX, lastY, 20, 0.2);
                 }
             }
 
-            // ripple(startX, startY, 25, 0.06);
-            // ripple(startX, startY, 30, 0.08);
-            
             $("body").on("touchmove", moveHandler).on("touchend", endHandler);
         });
 
@@ -108,12 +100,12 @@ module App {
             $("#score > span").text(frame.Score);
 
             if (x.Correct) {
-                $("#plusscore > span").text("+1");
-
-                $("#plusscore").css("display", "block");
-                $("#plusscore").addClass("animated fadeOutDown");
+                var score = $('<div class="plusscore popupmessage" style="display: block"><span></span></div>');
+                $("> span", score).text("+1");
+                $("#plusscore").append(score);
+                score.addClass("animated fadeOutDown");
                 setTimeout(() => {
-                    $("#plusscore").css("display", "none");
+                    score.remove();
                 }, popupmesssagedelay);
             } else {
                 $("#oops").css("display", "block");
@@ -174,13 +166,14 @@ module App {
         });
 
         resetRipples();
+        animLoop(renderRipple);
     }
 
     function resetRipples() {
         $('body').ripples('destroy');
 
         $('body').ripples({
-            resolution: 256,
+            resolution: 512,
             interactive: false
         });
     }
@@ -189,25 +182,17 @@ module App {
         $("body").ripple({});
     }
 
-    function waterRipple(x: number, y: number, radius: number, strength: number, force: boolean = false) {
-        if (!force && currentRipples > maxRipples) {
-            if (rippleTimeout) {
-                clearTimeout(rippleTimeout);
-            }
-
-            rippleTimeout = setTimeout(() => {
-                $("body").ripples("drop", x, y, radius, strength);
-            }, 50);
-
-            return;
+    var currentRipple = [];
+    function renderRipple() {
+        if (currentRipple.length > 0) {
+            var ripple = currentRipple.pop();
+            currentRipple = [];
+            $("body").ripples("drop", ripple.x, ripple.y, ripple.radius, ripple.strength);
         }
+    }
 
-        $("body").ripples("drop", x, y, radius, strength);
-        currentRipples++;
-
-        setTimeout(() => {
-            currentRipples--;
-        }, 1000);
+    function waterRipple(x: number, y: number, radius: number, strength: number) {
+        currentRipple.push({ x, y, radius, strength });
     }
 
     function animLoop(render, speed: number = (1000 / 60)) {
