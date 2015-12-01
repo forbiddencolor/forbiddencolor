@@ -2,6 +2,6 @@
   "name": "BlankCordovaApp3",
   "dependencies": {
     "jquery": "2.1.4",
-    "legitripple": "~1.0.0"
+    "requirejs": "2.1.20"
   }
 }

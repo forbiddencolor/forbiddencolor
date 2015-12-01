@@ -1,8 +1,12 @@
 /// <reference path="typings/jquery/jquery.d.ts" />
-/// <reference path="typings/jquery.ripples/jquery.ripples.d.ts" />
 define(["require", "exports", "./Frame", "jquery"], function (require, exports, Frame_1, $) {
+    // import * as $ from "zepto";
+    // import $ = require("zepto");
+    // var $ = require("zepto");
     var App;
     (function (App) {
+        App.shouldRenderRipples = true;
+        App.shouldRenderTouches = false;
         function initialize() {
             document.addEventListener("deviceready", onDeviceReady, false);
         }
@@ -16,7 +20,7 @@ define(["require", "exports", "./Frame", "jquery"], function (require, exports, 
             $("body").css("background-color", frame.CurrentColor.color);
             // $("#score > span").text(frame.Score);
             // $("#timer > span").text(frame.TimeLeft);
-            $("body").on("touchstart", function (e) {
+            $("body").on('touchstart', function (e) {
                 e.preventDefault();
                 // if (!frame.IsStarted) return;
                 if (!e.originalEvent.touches || e.originalEvent.touches.length === 0)
@@ -42,24 +46,30 @@ define(["require", "exports", "./Frame", "jquery"], function (require, exports, 
                         }
                         waterRipple(lastX, lastY, 20, 0.2);
                     }
+                    return true;
                 }
                 ;
                 function moveHandler(moveEvent) {
                     var touchMove = moveEvent.originalEvent.touches[0], movedX = Math.abs(touchMove.pageX - lastX), movedY = Math.abs(touchMove.pageY - lastY), timeDiff = new Date().getTime() - lastMoveTime;
-                    if (movedX > 30 || movedY > 30) {
+                    if (movedX > 60 || movedY > 60) {
                         lastX = touchMove.pageX;
                         lastY = touchMove.pageY;
                         waterRipple(lastX, lastY, 20, 0.2);
+                        showTouch(lastX, lastY);
                     }
                     lastMoveTime = new Date().getTime();
+                    return true;
                 }
                 waterRipple(lastX, lastY, 20, 0.2);
-                $("body").on("touchmove", moveHandler).on("touchend", endHandler);
+                showTouch(lastX, lastY);
+                $("body").on('touchmove', moveHandler).on("touchend", endHandler);
+                return true;
             });
             $("#startbutton").on("touchstart", function (e) {
                 e.preventDefault();
                 e.stopPropagation();
                 frame.start();
+                return true;
             });
             frame.TimeBonus.on(function (x) {
                 $("#timebonus .message > span").text("+" + x.ExtraTime);
@@ -88,21 +98,21 @@ define(["require", "exports", "./Frame", "jquery"], function (require, exports, 
                     msg.one("webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend", function () {
                         msg.remove();
                     });
-                    var pos = $oops.position(), rippleX = $('body').outerWidth() / 2, rippleY = pos.top;
+                    var pos = $oops.position(), rippleX = $('body').width() / 2, rippleY = pos.top;
                 }
-                $("#score > span").text(frame.Score);
+                $("#score > span").text(frame.Score.toString());
                 $("body").css("background-color", frame.CurrentColor.color);
             });
             frame.GameStarted.on(function (e) {
-                $("#score > span").text(frame.Score);
-                $("#timer > span").text(frame.TimeLeft);
+                $("#score > span").text(frame.Score.toString());
+                $("#timer > span").text(frame.TimeLeft.toString());
                 $("body").css("background-color", frame.CurrentColor.color);
                 $("#startscreen").hide();
                 $("#currentforbiddencolor").html("" + frame.CurrentColor.name);
             });
             frame.GameEnded.on(function (e) {
-                $("#score > span").text(frame.Score);
-                $("#timer > span").text(frame.TimeLeft);
+                $("#score > span").text(frame.Score.toString());
+                $("#timer > span").text(frame.TimeLeft.toString());
                 $("#startscreen").show();
             });
             frame.TimerUpdated.on(function (e) {
@@ -116,13 +126,14 @@ define(["require", "exports", "./Frame", "jquery"], function (require, exports, 
             frame.CountDownUpdated.on(function (e) {
                 if (e.CountDown > 0) {
                     $('#forbiddencolor > span').html('Forbidden color<br />' + frame.CurrentColor.name);
+                    $("#forbiddencolor").removeClass("animated fadeOut");
                     $("#forbiddencolor").show();
                 }
                 else {
                     $("#forbiddencolor").addClass("animated fadeOut");
                     resetRipples();
                 }
-                var text = e.CountDown === 0 ? "Go" : e.CountDown;
+                var text = e.CountDown === 0 ? "Go" : e.CountDown.toString();
                 $("#countdown > span").text(text);
                 $("#countdown").css("display", "block");
                 $("#countdown").addClass("animated bounceIn");
@@ -132,30 +143,34 @@ define(["require", "exports", "./Frame", "jquery"], function (require, exports, 
                 $("body").css("background-color", frame.CurrentColor.color);
             });
             resetRipples();
-            animLoop(renderRipple);
+            if (App.shouldRenderRipples) {
+                animLoop(renderRipple);
+            }
         }
-        function showRipple(pageX, pageY) {
+        function showTouch(pageX, pageY) {
+            if (!App.shouldRenderTouches)
+                return;
             var target = $("#page");
-            var ink = $("<span class='ripple'></span>");
+            var ink = $("<div class='ripple'></div>");
             //if (target.find(".ink").length === 0)
             //    target.append(ink);
             //var ink = target.find(".ripple");
             //ink.removeClass("show");
             target.append(ink);
-            if (!ink.height() && !ink.width()) {
-                var d = Math.max(target.outerWidth(), target.outerHeight());
-                // ink.css({ height: d, width: d });
-                // ink.css({ height: '50px', width: '50px' });
-                ink.css({ height: d / 2, width: d / 2 });
-            }
+            var d = Math.max(target.width(), target.height());
+            ink.css({ height: d / 2, width: d / 2 });
             var x = pageX - target.offset().left - ink.width() / 2;
             var y = pageY - target.offset().top - ink.height() / 2;
-            ink.css({ top: y + 'px', left: x + 'px' }).addClass("show");
             ink.one('animationend webkitAnimationEnd oAnimationEnd MSAnimationEnd', function () {
                 $(this).remove();
             });
+            setTimeout(function () {
+                ink.css({ top: y + 'px', left: x + 'px' }).addClass("show");
+            }, 0);
         }
         function resetRipples() {
+            if (!App.shouldRenderRipples)
+                return;
             $("body").ripples("destroy");
             $("body").ripples({
                 resolution: 384,
@@ -171,11 +186,12 @@ define(["require", "exports", "./Frame", "jquery"], function (require, exports, 
             }
         }
         function waterRipple(x, y, radius, strength) {
+            if (!App.shouldRenderRipples)
+                return;
             currentRipple.push({ x: x, y: y, radius: radius, strength: strength });
         }
-        function animLoop(render, speed, clamp) {
+        function animLoop(render, speed) {
             if (speed === void 0) { speed = (1000 / 30); }
-            if (clamp === void 0) { clamp = 500; }
             function timestamp() {
                 return window.performance && window.performance.now ? window.performance.now() : +new Date;
             }
@@ -184,7 +200,7 @@ define(["require", "exports", "./Frame", "jquery"], function (require, exports, 
                 if (running !== false) {
                     raf(loop);
                     var elapsed = Math.min(1000, now - lastFrame);
-                    if ((speed <= 0 || elapsed > speed) && elapsed < clamp) {
+                    if (speed <= 0 || elapsed > speed) {
                         lastFrame = now - (elapsed % speed);
                         running = render.bind(that)(elapsed);
                     }

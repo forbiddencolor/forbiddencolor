@@ -1,23 +1,22 @@
-define(["require", "exports", "app"], function (require, exports, App) {
-    requirejs.config({
-        baseUrl: "scripts",
-        shim: {
-            "jquery": {
-                exports: "$"
-            },
-            "jquery.ripples": {
-                exports: "$"
-            },
-            "jgestures": {
-                exports: "$"
-            }
+/// <reference path='typings/requirejs/require.d.ts' />
+/// <reference path='typings/cordova/cordova.d.ts' />
+requirejs.config({
+    baseUrl: "scripts",
+    paths: {
+        "jquery": "libs/jquery.min",
+        "jquery.ripples": "libs/jquery.ripples"
+    },
+    shim: {
+        jquery: {
+            exports: "$"
+        },
+        "jquery.ripples": {
+            exports: "$",
+            deps: ["jquery"]
         }
-    });
-    requirejs(["../cordova", "jquery", "jquery.ripples", "jgestures"], function () {
-        //This function will be called when all the dependencies
-        //listed above are loaded. Note that this function could
-        //be called before the page is loaded.
-        App.initialize();
-    });
+    }
+});
+requirejs(["../cordova", "jquery", "jquery.ripples", "app"], function (c, $, jr, App) {
+    App.initialize();
 });
 //# sourceMappingURL=index.js.map

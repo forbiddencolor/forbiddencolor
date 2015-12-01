@@ -199,9 +199,8 @@ define(["require", "exports", './LiteEvents'], function (require, exports, LiteE
             this.onTimerUpdated.trigger(new TimerUpdatedEventArgs());
             return true;
         };
-        Frame.prototype.animLoop = function (render, speed, clamp) {
+        Frame.prototype.animLoop = function (render, speed) {
             if (speed === void 0) { speed = (1000 / 30); }
-            if (clamp === void 0) { clamp = 500; }
             function timestamp() {
                 return window.performance && window.performance.now ? window.performance.now() : +new Date;
             }
@@ -210,7 +209,7 @@ define(["require", "exports", './LiteEvents'], function (require, exports, LiteE
                 if (running !== false) {
                     raf(loop);
                     var elapsed = Math.min(1000, now - lastFrame);
-                    if ((speed <= 0 || elapsed > speed) && elapsed < clamp) {
+                    if ((speed <= 0 || elapsed > speed)) {
                         lastFrame = now - (elapsed % speed);
                         running = render.bind(that)(elapsed);
                     }

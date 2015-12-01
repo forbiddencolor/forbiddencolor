@@ -217,7 +217,7 @@ export class Frame {
         return true;
     }
 
-    animLoop(render: Function, speed: number = (1000 / 30), clamp: number = 500) {
+    animLoop(render: Function, speed: number = (1000 / 30)) {
         function timestamp() {
             return window.performance && window.performance.now ? window.performance.now() : +new Date;
         }
@@ -230,7 +230,7 @@ export class Frame {
                 raf(loop);
                 var elapsed = Math.min(1000, now - lastFrame);
 
-                if ((speed <= 0 || elapsed > speed) && elapsed < clamp) {
+                if ((speed <= 0 || elapsed > speed)) {
                     lastFrame = now - (elapsed % speed);
                     running = render.bind(that)(elapsed);
                 }

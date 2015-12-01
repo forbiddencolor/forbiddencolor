@@ -1,10 +1,16 @@
 ﻿/// <reference path="typings/jquery/jquery.d.ts" />
-/// <reference path="typings/jquery.ripples/jquery.ripples.d.ts" />
 
 import {Frame} from "./Frame";
 import * as $ from "jquery";
 
+// import * as $ from "zepto";
+// import $ = require("zepto");
+// var $ = require("zepto");
+
 module App {
+    export var shouldRenderRipples = true;
+    export var shouldRenderTouches = false;
+
     export function initialize() {
         document.addEventListener("deviceready", onDeviceReady, false);
     }
@@ -15,14 +21,13 @@ module App {
         document.addEventListener("resume", onResume, false);
 
         var popupmesssagedelay = 750;
-
         var frame = new Frame();
 
         $("body").css("background-color", frame.CurrentColor.color);
         // $("#score > span").text(frame.Score);
         // $("#timer > span").text(frame.TimeLeft);
 
-        $("body").on("touchstart", (e: any) => {
+        $("body").on('touchstart', (e: any) => {
             e.preventDefault();
             
             // if (!frame.IsStarted) return;
@@ -30,8 +35,8 @@ module App {
             if (!e.originalEvent.touches || e.originalEvent.touches.length === 0) return;
 
             var touchStart = e.originalEvent.touches[0],
-                startX = touchStart.pageX,
-                startY = touchStart.pageY,
+                startX: number = touchStart.pageX,
+                startY: number = touchStart.pageY,
                 lastX = startX,
                 lastY = startY,
                 touchStartTime = new Date().getTime(),
@@ -41,7 +46,7 @@ module App {
                 $("body").off("touchmove", moveHandler).off("touchend", endHandler);
             };
 
-            function endHandler(endEvent) {
+            function endHandler(endEvent): boolean {
                 var timeDiff = new Date().getTime() - lastMoveTime;
                 removeTouchHandler();
 
@@ -50,16 +55,11 @@ module App {
                         Math.abs(lastY - startY) > 50)) {
                     if (frame.IsStarted) {
                         frame.swipe();
-                        // waterRipple(lastX, lastY, 20, 0.2);
                     }
 
-                    //for (var x = startX, y = startY; x < lastX && y < lastY; x += 5, y += 5) {
-                    //    showRipple(x, y);
-                    //}
-
-                    // showRipple(startX, startY);
-                    // showRipple(lastX - ((lastX - startX) / 2), lastY - ((lastY - startY) / 2));
-                    // showRipple(lastX, lastY);
+                    //showTouch(startX, startY);
+                    //showTouch(lastX - ((lastX - startX) / 2), lastY - ((lastY - startY) / 2));
+                    //showTouch(lastX, lastY);
                 } else {
                     if (frame.IsStarted) {
                         frame.tap();
@@ -67,26 +67,33 @@ module App {
 
                     waterRipple(lastX, lastY, 20, 0.2);
                 }
+
+                return true;
             };
 
-            function moveHandler(moveEvent) {
+            function moveHandler(moveEvent): boolean {
                 var touchMove = moveEvent.originalEvent.touches[0],
                     movedX = Math.abs(touchMove.pageX - lastX),
                     movedY = Math.abs(touchMove.pageY - lastY),
                     timeDiff = new Date().getTime() - lastMoveTime;
 
-                if (movedX > 30 || movedY > 30) {
+                if (movedX > 60 || movedY > 60) {
                     lastX = touchMove.pageX;
                     lastY = touchMove.pageY;
 
                     waterRipple(lastX, lastY, 20, 0.2);
+                    showTouch(lastX, lastY);
                 }
 
                 lastMoveTime = new Date().getTime();
+
+                return true;
             }
 
             waterRipple(lastX, lastY, 20, 0.2);
-            $("body").on("touchmove", moveHandler).on("touchend", endHandler);
+            showTouch(lastX, lastY);
+            $("body").on('touchmove', moveHandler).on("touchend", endHandler);
+            return true;
         });
 
         $("#startbutton").on("touchstart", e => {
@@ -94,6 +101,7 @@ module App {
             e.stopPropagation();
 
             frame.start();
+            return true;
         });
 
         frame.TimeBonus.on(x => {
@@ -126,26 +134,26 @@ module App {
                 });
 
                 var pos = $oops.position(),
-                    rippleX = $('body').outerWidth() / 2,
+                    rippleX = $('body').width() / 2,
                     rippleY = pos.top;
                 // showRipple(rippleX, rippleY);
             }
 
-            $("#score > span").text(frame.Score);
+            $("#score > span").text(frame.Score.toString());
             $("body").css("background-color", frame.CurrentColor.color);
         });
 
         frame.GameStarted.on(e => {
-            $("#score > span").text(frame.Score);
-            $("#timer > span").text(frame.TimeLeft);
+            $("#score > span").text(frame.Score.toString());
+            $("#timer > span").text(frame.TimeLeft.toString());
             $("body").css("background-color", frame.CurrentColor.color);
             $("#startscreen").hide();
             $("#currentforbiddencolor").html("" + frame.CurrentColor.name);
         });
 
         frame.GameEnded.on(e => {
-            $("#score > span").text(frame.Score);
-            $("#timer > span").text(frame.TimeLeft);
+            $("#score > span").text(frame.Score.toString());
+            $("#timer > span").text(frame.TimeLeft.toString());
             $("#startscreen").show();
         });
 
@@ -160,13 +168,14 @@ module App {
         frame.CountDownUpdated.on(e => {
             if (e.CountDown > 0) {
                 $('#forbiddencolor > span').html('Forbidden color<br />' + frame.CurrentColor.name);
+                $("#forbiddencolor").removeClass("animated fadeOut");
                 $("#forbiddencolor").show();
             } else {
                 $("#forbiddencolor").addClass("animated fadeOut");
                 resetRipples();
             }
 
-            var text = e.CountDown === 0 ? "Go" : e.CountDown;
+            var text = e.CountDown === 0 ? "Go" : e.CountDown.toString();
 
             $("#countdown > span").text(text);
             $("#countdown").css("display", "block");
@@ -179,12 +188,16 @@ module App {
         });
 
         resetRipples();
-        animLoop(renderRipple);
+        if (shouldRenderRipples) {
+            animLoop(renderRipple);
+        }
     }
 
-    function showRipple(pageX, pageY) {
+    function showTouch(pageX, pageY) {
+        if (!shouldRenderTouches) return;
+
         var target = $("#page");
-        var ink = $("<span class='ripple'></span>");
+        var ink = $("<div class='ripple'></div>");
         //if (target.find(".ink").length === 0)
         //    target.append(ink);
         //var ink = target.find(".ripple");
@@ -192,23 +205,24 @@ module App {
 
         target.append(ink);
 
-        if (!ink.height() && !ink.width()) {
-            var d = Math.max(target.outerWidth(), target.outerHeight());
-            // ink.css({ height: d, width: d });
-            // ink.css({ height: '50px', width: '50px' });
-            ink.css({ height: d / 2, width: d / 2 });
-        }
+        var d = Math.max(target.width(), target.height());
+        ink.css({ height: d / 2, width: d / 2 });
 
         var x = pageX - target.offset().left - ink.width() / 2;
         var y = pageY - target.offset().top - ink.height() / 2;
 
-        ink.css({ top: y + 'px', left: x + 'px' }).addClass("show");
         ink.one('animationend webkitAnimationEnd oAnimationEnd MSAnimationEnd', function () {
             $(this).remove();
         });
+
+        setTimeout(() => {
+                ink.css({ top: y + 'px', left: x + 'px' }).addClass("show");
+            }, 0);
     }
 
     function resetRipples() {
+        if (!shouldRenderRipples) return;
+
         $("body").ripples("destroy");
 
         $("body").ripples({
@@ -228,15 +242,17 @@ module App {
     }
 
     function waterRipple(x: number, y: number, radius: number, strength: number) {
+        if (!shouldRenderRipples) return;
+
         currentRipple.push({ x, y, radius, strength });
     }
 
-    function animLoop(render: Function, speed: number = (1000 / 30), clamp: number = 500) {
+    function animLoop(render: Function, speed: number = (1000 / 30)) {
         function timestamp() {
             return window.performance && window.performance.now ? window.performance.now() : +new Date;
         }
 
-        var running, lastFrame = timestamp(),            
+        var running, lastFrame = timestamp(),
             raf = window.requestAnimationFrame,
             that = this;
         function loop(now) {
@@ -244,7 +260,7 @@ module App {
                 raf(loop);
                 var elapsed = Math.min(1000, now - lastFrame);
 
-                if ((speed <= 0 || elapsed > speed) && elapsed < clamp) {
+                if (speed <= 0 || elapsed > speed) {
                     lastFrame = now - (elapsed % speed);
                     running = render.bind(that)(elapsed);
                 }

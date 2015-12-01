@@ -1,31 +1,23 @@
 ﻿/// <reference path='typings/requirejs/require.d.ts' />
 /// <reference path='typings/cordova/cordova.d.ts' />
-import App = require("app");
 
 requirejs.config({
     baseUrl: "scripts",
+    paths: {
+        "jquery": "libs/jquery.min",
+        "jquery.ripples": "libs/jquery.ripples"
+    },
     shim: {
-        "jquery": {
+        jquery: {
             exports: "$"
         },
         "jquery.ripples": {
-            exports: "$"
-        },
-        "jgestures": {
-            exports: "$"
+            exports: "$",
+            deps: ["jquery"]
         }
     }
 
-    //only use shim config for non- AMD scripts,
-    //scripts that do not already call define(). The shim
-    //config will not work correctly if used on AMD scripts,
-    //in particular, the exports and init config will not
-    //be triggered, and the deps config will be confusing
-    //for those cases.
 });
-requirejs(["../cordova", "jquery", "jquery.ripples", "jgestures"], () => {
-    //This function will be called when all the dependencies
-    //listed above are loaded. Note that this function could
-    //be called before the page is loaded.
+requirejs(["../cordova", "jquery", "jquery.ripples", "app"], (c, $, jr, App) => {
     App.initialize();
 });
