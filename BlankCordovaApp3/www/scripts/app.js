@@ -5,7 +5,7 @@ define(["require", "exports", "./Frame", "jquery"], function (require, exports, 
     // var $ = require("zepto");
     var App;
     (function (App) {
-        App.shouldRenderRipples = true;
+        App.shouldRenderRipples = false;
         App.shouldRenderTouches = false;
         function initialize() {
             document.addEventListener("deviceready", onDeviceReady, false);
@@ -24,7 +24,7 @@ define(["require", "exports", "./Frame", "jquery"], function (require, exports, 
                 e.preventDefault();
                 // if (!frame.IsStarted) return;
                 if (!e.originalEvent.touches || e.originalEvent.touches.length === 0)
-                    return;
+                    return true;
                 var touchStart = e.originalEvent.touches[0], startX = touchStart.pageX, startY = touchStart.pageY, lastX = startX, lastY = startY, touchStartTime = new Date().getTime(), lastMoveTime = touchStartTime;
                 function removeTouchHandler() {
                     $("body").off("touchmove", moveHandler).off("touchend", endHandler);
@@ -44,7 +44,7 @@ define(["require", "exports", "./Frame", "jquery"], function (require, exports, 
                         if (frame.IsStarted) {
                             frame.tap();
                         }
-                        waterRipple(lastX, lastY, 20, 0.2);
+                        waterRipple(lastX, lastY);
                     }
                     return true;
                 }
@@ -54,13 +54,13 @@ define(["require", "exports", "./Frame", "jquery"], function (require, exports, 
                     if (movedX > 60 || movedY > 60) {
                         lastX = touchMove.pageX;
                         lastY = touchMove.pageY;
-                        waterRipple(lastX, lastY, 20, 0.2);
+                        waterRipple(lastX, lastY);
                         showTouch(lastX, lastY);
                     }
                     lastMoveTime = new Date().getTime();
                     return true;
                 }
-                waterRipple(lastX, lastY, 20, 0.2);
+                waterRipple(lastX, lastY);
                 showTouch(lastX, lastY);
                 $("body").on('touchmove', moveHandler).on("touchend", endHandler);
                 return true;
@@ -73,32 +73,43 @@ define(["require", "exports", "./Frame", "jquery"], function (require, exports, 
             });
             frame.TimeBonus.on(function (x) {
                 $("#timebonus .message > span").text("+" + x.ExtraTime);
+                $("#timebonus").removeClass("animated bounceIn");
                 $("#timebonus").css("display", "block");
                 $("#timebonus").addClass("animated bounceIn");
                 setTimeout(function () {
                     $("#timebonus").css("display", "none");
                 }, popupmesssagedelay);
             });
+            var popupMessageCount = 0;
+            var lastScoreTime = +new Date;
             frame.NextFrame.on(function (x) {
                 if (x.Correct) {
-                    var score = $('<div class="plusscore popupmessage" style="display: block"><span></span></div>');
-                    $("> span", score).text("+1");
-                    $("#plusscore").append(score);
-                    score.addClass("animated fadeOutDown");
-                    score.one("webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend", function () {
-                        score.remove();
-                    });
+                    var now = +new Date;
+                    var delta = now - lastScoreTime;
+                    if (delta > 180) {
+                        lastScoreTime = now;
+                        var score = $('<div class="plusscore popupmessage" style="display: block"><span></span></div>');
+                        $("> span", score).text("+1");
+                        $("#plusscore").append(score);
+                        score.addClass("animated fadeOutDown");
+                        score.one("webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend", function () {
+                            score.remove();
+                        });
+                    }
                 }
                 else {
-                    var $oops = $("#oops");
-                    var msg = $('<div class="oops popupmessage" style="display: block"><span></span></div>');
-                    $("> span", msg).text("OOPS");
-                    $oops.append(msg);
-                    msg.addClass("animated bounceIn");
-                    msg.one("webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend", function () {
-                        msg.remove();
-                    });
-                    var pos = $oops.position(), rippleX = $('body').width() / 2, rippleY = pos.top;
+                    if (popupMessageCount < 3) {
+                        popupMessageCount++;
+                        var $oops = $("#oops");
+                        var msg = $('<div class="oops popupmessage" style="display: block"><span></span></div>');
+                        $("> span", msg).text("OOPS");
+                        $oops.append(msg);
+                        msg.addClass("animated bounceIn");
+                        msg.one("webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend", function () {
+                            msg.remove();
+                            popupMessageCount--;
+                        });
+                    }
                 }
                 $("#score > span").text(frame.Score.toString());
                 $("body").css("background-color", frame.CurrentColor.color);
@@ -173,7 +184,7 @@ define(["require", "exports", "./Frame", "jquery"], function (require, exports, 
                 return;
             $("body").ripples("destroy");
             $("body").ripples({
-                resolution: 384,
+                resolution: 512,
                 interactive: false
             });
         }
@@ -186,6 +197,8 @@ define(["require", "exports", "./Frame", "jquery"], function (require, exports, 
             }
         }
         function waterRipple(x, y, radius, strength) {
+            if (radius === void 0) { radius = 10; }
+            if (strength === void 0) { strength = 0.06; }
             if (!App.shouldRenderRipples)
                 return;
             currentRipple.push({ x: x, y: y, radius: radius, strength: strength });

@@ -8,7 +8,7 @@ import * as $ from "jquery";
 // var $ = require("zepto");
 
 module App {
-    export var shouldRenderRipples = true;
+    export var shouldRenderRipples = false;
     export var shouldRenderTouches = false;
 
     export function initialize() {
@@ -32,7 +32,7 @@ module App {
             
             // if (!frame.IsStarted) return;
 
-            if (!e.originalEvent.touches || e.originalEvent.touches.length === 0) return;
+            if (!e.originalEvent.touches || e.originalEvent.touches.length === 0) return true;
 
             var touchStart = e.originalEvent.touches[0],
                 startX: number = touchStart.pageX,
@@ -65,7 +65,7 @@ module App {
                         frame.tap();
                     }
 
-                    waterRipple(lastX, lastY, 20, 0.2);
+                    waterRipple(lastX, lastY);
                 }
 
                 return true;
@@ -81,7 +81,7 @@ module App {
                     lastX = touchMove.pageX;
                     lastY = touchMove.pageY;
 
-                    waterRipple(lastX, lastY, 20, 0.2);
+                    waterRipple(lastX, lastY);
                     showTouch(lastX, lastY);
                 }
 
@@ -90,7 +90,7 @@ module App {
                 return true;
             }
 
-            waterRipple(lastX, lastY, 20, 0.2);
+            waterRipple(lastX, lastY);
             showTouch(lastX, lastY);
             $("body").on('touchmove', moveHandler).on("touchend", endHandler);
             return true;
@@ -107,6 +107,7 @@ module App {
         frame.TimeBonus.on(x => {
             $("#timebonus .message > span").text("+" + x.ExtraTime);
 
+            $("#timebonus").removeClass("animated bounceIn");
             $("#timebonus").css("display", "block");
             $("#timebonus").addClass("animated bounceIn");
             setTimeout(() => {
@@ -114,29 +115,35 @@ module App {
             }, popupmesssagedelay);
         });
 
+        var popupMessageCount = 0;
+        var lastScoreTime = +new Date;
         frame.NextFrame.on(x => {
             if (x.Correct) {
-                var score = $('<div class="plusscore popupmessage" style="display: block"><span></span></div>');
-                $("> span", score).text("+1");
-                $("#plusscore").append(score);
-                score.addClass("animated fadeOutDown");
-                score.one("webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend", function () {
-                    score.remove();
-                });
+                var now = +new Date;
+                var delta = now - lastScoreTime;
+                if (delta > 180) {
+                    lastScoreTime = now;
+                    var score = $('<div class="plusscore popupmessage" style="display: block"><span></span></div>');
+                    $("> span", score).text("+1");
+                    $("#plusscore").append(score);
+                    score.addClass("animated fadeOutDown");
+                    score.one("webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend", () => {
+                        score.remove();
+                    });                    
+                }
             } else {
-                var $oops = $("#oops");
-                var msg = $('<div class="oops popupmessage" style="display: block"><span></span></div>');
-                $("> span", msg).text("OOPS");
-                $oops.append(msg);
-                msg.addClass("animated bounceIn");
-                msg.one("webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend", function () {
-                    msg.remove();
-                });
-
-                var pos = $oops.position(),
-                    rippleX = $('body').width() / 2,
-                    rippleY = pos.top;
-                // showRipple(rippleX, rippleY);
+                if (popupMessageCount < 3) {
+                    popupMessageCount++
+                    var $oops = $("#oops");
+                    var msg = $('<div class="oops popupmessage" style="display: block"><span></span></div>');
+                    $("> span", msg).text("OOPS");
+                    $oops.append(msg);
+                    msg.addClass("animated bounceIn");
+                    msg.one("webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend", () => {
+                        msg.remove();
+                        popupMessageCount--;
+                    });
+                }
             }
 
             $("#score > span").text(frame.Score.toString());
@@ -226,7 +233,7 @@ module App {
         $("body").ripples("destroy");
 
         $("body").ripples({
-            resolution: 384,
+            resolution: 512,
             interactive: false
         });
     }
@@ -241,10 +248,10 @@ module App {
         }
     }
 
-    function waterRipple(x: number, y: number, radius: number, strength: number) {
+    function waterRipple(x: number, y: number, radius: number = 10, strength: number = 0.06) {
         if (!shouldRenderRipples) return;
 
-        currentRipple.push({ x, y, radius, strength });
+        currentRipple.push({ x, y, radius, strength});
     }
 
     function animLoop(render: Function, speed: number = (1000 / 30)) {
