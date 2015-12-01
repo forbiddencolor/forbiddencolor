@@ -67,7 +67,7 @@ html, body {
     text-align: center;
     font-size: 4em;
     font-family: circulat;
-    font-weight: bold;    
+    font-weight: bold;
     color: white;
     display: none;
 }
@@ -131,6 +131,7 @@ html, body {
 }
 
     #countdown > span {
+        font-size: 2em;
     }
 
 #currentforbiddencolor {
@@ -145,20 +146,38 @@ footer {
     height: 40px;
 }
 
+.credits {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 100%;
+    height: 40px;
+    text-align: right;
+    font-size: 1em;
+    margin-right: 20px;
+}
+
 .howtoplay {
-    margin: 20px 8px 0 8px;
+    position: relative;
+    top: 10%;
+    margin: 0px 8px 0 8px;
+    text-align: center;
 }
 
     .howtoplay span {
-        font-size: 1.25em;
+        font-size: 1.5em;
     }
 
 #startscreen {
     position: absolute;
-    top: 20%;
+    top: 0%;
+    height: 100%;
+    width: 100%;
 }
 
 div.startbutton {
+    bottom: 10%;
+    position: absolute;
     width: 100%;
     text-align: center;
 }
@@ -192,6 +211,7 @@ button:focus {
     font-weight: normal;
     font-size: 1.3em;
     padding: 0 0 0 10px;
+    height: 100%;
 }
 
 .ripple {

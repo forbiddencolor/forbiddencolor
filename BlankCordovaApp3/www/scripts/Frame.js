@@ -61,7 +61,6 @@ define(["require", "exports", './LiteEvents'], function (require, exports, LiteE
                 { color: "#00CC00", name: "Green" },
                 { color: "#FF0000", name: "Red" },
                 { color: "#002AFF", name: "Blue" },
-                { color: "#FF55FF", name: "Pink" } // pink
             ];
             this.CurrentColor = this.pickColor();
             this.ForbiddenColor = this.CurrentColor;
@@ -124,7 +123,7 @@ define(["require", "exports", './LiteEvents'], function (require, exports, LiteE
                     clearInterval(_this._countdownInterval);
                     _this.CurrentColor = _this.pickColor();
                     _this.IsPlaying = true;
-                    _this.animLoop(_this.gameLoop, 100);
+                    setTimeout(function () { _this.animLoop(_this.gameLoop, 100); }, 500);
                 }
                 _this.onCountDown.trigger(new CountDownEventArgs(_this.CountDown));
             }, 1000);

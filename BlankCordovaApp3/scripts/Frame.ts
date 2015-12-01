@@ -86,7 +86,7 @@ export class Frame {
             { color: "#00CC00", name: "Green" }, // green
             { color: "#FF0000", name: "Red" }, // red
             { color: "#002AFF", name: "Blue" }, // blue
-            { color: "#FF55FF", name: "Pink" } // pink
+            // { color: "#FF55FF", name: "Pink" } // pink
         ];
 
         this.CurrentColor = this.pickColor();
@@ -125,7 +125,8 @@ export class Frame {
                 clearInterval(this._countdownInterval);
                 this.CurrentColor = this.pickColor();
                 this.IsPlaying = true;
-                this.animLoop(this.gameLoop, 100);
+                setTimeout(() => { this.animLoop(this.gameLoop, 100); }, 500);
+
                 //this._interval = setInterval(() => { this.updateInterval(); }, 100);
             }
 
