@@ -1,7 +1,7 @@
 {
   "name": "forbiddencolor",
   "description": "Forbidden Color",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "dependencies": {
     "animate.css": "3.4.0",
     "jquery": "2.1.4",
