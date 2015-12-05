@@ -1,6 +1,12 @@
 {
-    "name": "Forbidden Color",
-    "version": "1.0.0",
-    "dependencies": {
-    }
+  "name": "forbiddencolor",
+  "description": "Forbidden Color",
+  "version": "1.0.0",
+  "dependencies": {
+    "animate.css": "3.4.0",
+    "jquery": "2.1.4",
+    "knockout": "3.4.0",    
+    "normalize.css": "^3.0.3",
+    "requirejs": "2.1.20"
+  }
 }
