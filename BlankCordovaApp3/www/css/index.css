@@ -7,15 +7,53 @@
     -webkit-tap-highlight-color: rgba(0,0,0,0);
     /* prevent copy paste, to allow, change 'none' to 'text' */
     -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+}
+
+span {
+    color: white;
+    cursor: default;
 }
 
 input[type="checkbox"] {
     -webkit-appearance: none;
 }
 
+input[type="text"] {
+    -webkit-appearance: none;
+    -moz-box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+    box-shadow: none !important;
+    outline: none;
+    text-decoration: none;    
+}
+
+    input[type="text"]:focus {
+        -webkit-appearance: none;
+        -moz-box-shadow: none !important;
+        -webkit-box-shadow: none !important;
+        box-shadow: none !important;
+        outline: none;
+    }
+
 input::-webkit-input-placeholder {
     opacity: .8;
 }
+
+button {
+    border: none;
+    background: none;
+    text-align: center;
+    outline: none;
+    color: white;
+}
+
+    button > span {
+        color: white;
+    }
 
 @font-face {
     font-family: circulat;
@@ -24,26 +62,29 @@ input::-webkit-input-placeholder {
 
 html, body {
     -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -o-user-select: none;
+    user-select: none;
     height: 100%;
     width: 100%;
     margin: 0;
     padding: 0;
     font-family: circulat;
+    background-color: #FF0000;
 }
 
-#page {
+
+button > span {
+    cursor: pointer;
+}
+
+.page {
     height: 100%;
     width: 100%;
     margin: 0;
     padding: 0;
-}
-
-#frame {
-    height: 100%;
-    width: auto;
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+    display: none;
 }
 
 #header {
@@ -159,16 +200,19 @@ footer {
 
 .howtoplay {
     position: relative;
-    top: 10%;
+    top: 6%;
     margin: 0px 8px 0 8px;
     text-align: center;
+    font-weight: normal;
+    font-size: 1.3em;
+    padding: 0 0 0 10px;
 }
 
     .howtoplay span {
         font-size: 1.5em;
     }
 
-#startscreen {
+#welcome {
     position: absolute;
     top: 0%;
     height: 100%;
@@ -190,6 +234,7 @@ div.startbutton {
     font-family: circulat;
     font-size: 8em;
     color: white;
+    cursor: pointer;
 }
 
 .startbutton > img {
@@ -204,14 +249,6 @@ div.startbutton {
 
 button:focus {
     outline: 0;
-}
-
-.howtoplay {
-    color: white;
-    font-weight: normal;
-    font-size: 1.3em;
-    padding: 0 0 0 10px;
-    height: 100%;
 }
 
 .ripple {
@@ -248,10 +285,150 @@ button:focus {
         animation: ripple .5s ease-out;
     }
 
+@-moz-keyframes ripple {
+    to {
+        -webkit-transform: scale3d(1.5, 1.5, 1.5);
+        transform: scale3d(1.5, 1.5, 1.5);
+        opacity: 0;
+    }
+}
+
+@-webkit-keyframes ripple {
+    to {
+        -webkit-transform: scale3d(1.5, 1.5, 1.5);
+        transform: scale3d(1.5, 1.5, 1.5);
+        opacity: 0;
+    }
+}
+
 @keyframes ripple {
     to {
         -webkit-transform: scale3d(1.5, 1.5, 1.5);
         transform: scale3d(1.5, 1.5, 1.5);
         opacity: 0;
     }
+}
+
+.highscores {
+    top: 32%;
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    color: white;
+    font-size: 2em;
+}
+
+    .highscores ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+        .highscores ul li {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+
+    .highscores table {
+        text-align: left;
+        width: 90%;
+        margin: 0 auto;
+    }
+
+        .highscores table td.score {
+            text-align: right;
+        }
+
+        .highscores table td.name {
+            text-align: left;
+        }
+
+#gameoverscreen .gameover {
+    position: absolute;
+    top: 35%;
+    margin: 0 auto;
+    text-align: center;
+    width: 100%;
+}
+
+#gameoverscreen .score {
+    position: absolute;
+    top: 65%;
+    margin: 0 auto;
+    text-align: center;
+    width: 100%;
+}
+
+#gameoverscreen .gameover span {
+    font-size: 3em;
+}
+
+#gameoverscreen .score > span {
+    font-size: 6em;
+}
+
+@media all and (orientation:portrait) {
+    #gameoverscreen .form > span {
+        display: block;
+    }
+
+    #gameoverscreen .form > button {
+        display: inline;
+    }
+}
+
+@media all and (orientation:landscape) {
+    #gameoverscreen .form > span {
+        display: inline;
+    }
+
+    #gameoverscreen .form > button {
+        display: inline;
+    }
+}
+
+#gameoverscreen .again {
+    position: absolute;
+    top: 5%;
+    margin: 0 auto;
+    text-align: center;
+    width: 100%;
+}
+
+    #gameoverscreen .again button > span {
+        font-size: 3em;
+    }
+
+#gameoverscreen .tomainscreen {
+    font-size: 0.6em;
+}
+
+#gameoverscreen .form {
+    position: absolute;
+    top: 5%;
+    margin: 0 auto;
+    text-align: center;
+    width: 100%;
+}
+
+    #gameoverscreen .form span {
+        font-size: 2em;
+        margin: 8px 0 8px 0;
+        text-align: center;
+    }
+
+    #gameoverscreen .form input[type=text] {
+        height: 40px;
+        width: 180px;
+        font-size: 1.8em;
+        padding: 4px;
+    }
+
+input[type=text] {
+    background-color: rgba(0,0,0,0.1);
+    border-radius: 30px;
+    border: 1px dotted black;
+    color: white;
 }

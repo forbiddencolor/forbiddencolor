@@ -1,6 +1,9 @@
 ﻿"use strict";
 
 import {ILiteEvent, LiteEvent} from './LiteEvents';
+import {HighScoreStorage} from "HighScores";
+
+var scores = new HighScoreStorage();
 
 export class NextFrameEventArgs {
     public Correct: boolean;
@@ -125,9 +128,7 @@ export class Frame {
                 clearInterval(this._countdownInterval);
                 this.CurrentColor = this.pickColor();
                 this.IsPlaying = true;
-                setTimeout(() => { this.animLoop(this.gameLoop, 100); }, 500);
-
-                //this._interval = setInterval(() => { this.updateInterval(); }, 100);
+                setTimeout(() => { this.animLoop(this.gameLoop, 100); }, 500);                
             }
 
             this.onCountDown.trigger(new CountDownEventArgs(this.CountDown));
@@ -137,11 +138,10 @@ export class Frame {
         this.onCountDown.trigger(new CountDownEventArgs(this.CountDown));
     }
 
-    public endGame() {
+    public endGame() {        
         var score = this.Score;
-
+        
         this.TimeLeft = 0;
-        //clearInterval(this._interval);
         this.IsStarted = false;
         this.IsPlaying = false;
         this.onGameEnded.trigger(new GameEndedEventArgs(score));

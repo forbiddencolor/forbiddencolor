@@ -3,12 +3,16 @@
 requirejs.config({
     baseUrl: "scripts",
     paths: {
+        "knockout": "libs/knockout",
         "jquery": "libs/jquery.min",
         "jquery.ripples": "libs/jquery.ripples"
     },
     shim: {
         jquery: {
             exports: "$"
+        },
+        knockout: {
+            exports: "ko"
         },
         "jquery.ripples": {
             exports: "$",
