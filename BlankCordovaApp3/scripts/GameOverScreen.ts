@@ -23,16 +23,28 @@ export class GameOverScreen extends Screen {
 
         this.updateHighScores();
         ko.applyBindings(this, $("#gameoverscreen")[0]);
+
+        $('#name').on('keypress', function (e) {
+            //list of functional/control keys that you want to allow always
+            var keys = [8, 9, 16, 17, 18, 19, 20, 27, 33, 34, 35, 36, 37, 38, 39, 40, 45, 46, 144, 145];
+
+            if ($.inArray(e.keyCode, keys) === -1) {
+                if ($(this).val().length >= scores.maxNameLength) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            }
+        });
     }
 
     public show() {
         this.updateHighScores();
         super.show();
+        $("input[type=text]").first().focus();
     }
 
     public hide() {
         super.hide();
-        ScreenManager.getScreen('start').show();
     }
 
     private updateHighScores() {
@@ -42,10 +54,20 @@ export class GameOverScreen extends Screen {
     }
 
     public saveScore() {
-        if (this.name().length < 3) return;
+        if (!this.name() || this.name().length < 3) return;
 
         scores.addScore(this.name(), this.score());
+        this.mainScreen();
+    }
+
+    public startGame() {
         this.hide();
+        ScreenManager.getScreen('gamescreen').show();
+    }
+
+    public mainScreen() {
+        this.hide();
+        ScreenManager.getScreen('start').show();
     }
 
     engine: Frame;

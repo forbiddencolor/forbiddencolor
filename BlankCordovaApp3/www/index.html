@@ -16,9 +16,14 @@
                 <span>Swipe the forbidden color<br />Tap all other colors</span>
             </div>
             <div class="highscores">
-                <ul data-bind="foreach: highScores">
-                    <li><span data-bind="text: name"></span>: <span data-bind="text: score"></span></li>
-                </ul>
+                <table>
+                    <tbody data-bind="foreach: highScores">
+                        <tr>
+                            <td class="name"><span data-bind="text: name"></span></td>
+                            <td class="score"><span data-bind="text: score"></span></td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
             <div class="startbutton">
                 <button id="startbutton" class="startbutton" style="border: 0; background: transparent">
@@ -52,16 +57,22 @@
         </div>
     </div>
     <div class="page" id="gameoverscreen">
+        <div class="again" data-bind="visible: (!isHighScore())">
+            <button data-bind="click: startGame" class="startgame"><span>Again?</span></button><br />
+            <button data-bind="click: mainScreen" class="tomainscreen"><span>Main menu</span></button>
+        </div>
         <div class="gameover">
-            <a data-bind="click: hide"><span data-bind="visible: !isHighScore()">GAME OVER</span></a>
-            <span data-bind="visible: isHighScore()">NEW HIGHSCORE</span>
+            <div><span data-bind="visible: (!isHighScore())">GAME OVER!</span></div>
+            <div><span data-bind="visible: (!isHighScore())" style="font-size: 2.5em;">Your score:</span></div>
+            <div><span data-bind="visible: isHighScore">NEW HIGHSCORE</span></div>
         </div>
         <div class="score">
             <span data-bind="text: score"></span>
         </div>
-        <div class="form">
-            <input type="text" data-bind="value: name" />
-            <button type="button" data-bind="click: saveScore"></button>
+        <div class="form" data-bind="visible: isHighScore">
+            <span>Your name:</span>
+            <input type="text" data-bind="value: name" id="name" maxlength="5" />
+            <button type="button" data-bind="click: saveScore"><span>Add</span></button>
         </div>
     </div>
     <script data-main="scripts/index" src="scripts/require.js"></script>

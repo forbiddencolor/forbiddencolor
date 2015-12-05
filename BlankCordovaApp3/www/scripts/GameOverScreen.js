@@ -18,14 +18,24 @@ define(["require", "exports", "Screen", "HighScores", "ScreenManager", "knockout
             this.engine = engine;
             this.updateHighScores();
             ko.applyBindings(this, $("#gameoverscreen")[0]);
+            $('#name').on('keypress', function (e) {
+                //list of functional/control keys that you want to allow always
+                var keys = [8, 9, 16, 17, 18, 19, 20, 27, 33, 34, 35, 36, 37, 38, 39, 40, 45, 46, 144, 145];
+                if ($.inArray(e.keyCode, keys) === -1) {
+                    if ($(this).val().length >= scores.maxNameLength) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }
+                }
+            });
         }
         GameOverScreen.prototype.show = function () {
             this.updateHighScores();
             _super.prototype.show.call(this);
+            $("input[type=text]").first().focus();
         };
         GameOverScreen.prototype.hide = function () {
             _super.prototype.hide.call(this);
-            ScreenManager.getScreen('start').show();
         };
         GameOverScreen.prototype.updateHighScores = function () {
             var _this = this;
@@ -34,10 +44,18 @@ define(["require", "exports", "Screen", "HighScores", "ScreenManager", "knockout
             this.isHighScore(scores.isHighScore(this.score()));
         };
         GameOverScreen.prototype.saveScore = function () {
-            if (this.name().length < 3)
+            if (!this.name() || this.name().length < 3)
                 return;
             scores.addScore(this.name(), this.score());
+            this.mainScreen();
+        };
+        GameOverScreen.prototype.startGame = function () {
             this.hide();
+            ScreenManager.getScreen('gamescreen').show();
+        };
+        GameOverScreen.prototype.mainScreen = function () {
+            this.hide();
+            ScreenManager.getScreen('start').show();
         };
         return GameOverScreen;
     })(Screen_1.Screen);

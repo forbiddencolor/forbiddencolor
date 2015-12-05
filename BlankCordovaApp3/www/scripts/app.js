@@ -1,5 +1,6 @@
 /// <reference path="typings/jquery/jquery.d.ts" />
-define(["require", "exports", "Frame", "StartScreen", "ScreenManager"], function (require, exports, Frame_1, StartScreen_1, ScreenManager) {
+define(["require", "exports", "Frame", "StartScreen", "ScreenManager", "HighScores"], function (require, exports, Frame_1, StartScreen_1, ScreenManager, HighScores_1) {
+    var scores = new HighScores_1.HighScoreStorage();
     var App;
     (function (App) {
         function initialize() {
@@ -16,6 +17,11 @@ define(["require", "exports", "Frame", "StartScreen", "ScreenManager"], function
             var startScreen = new StartScreen_1.StartScreen(frame);
             ScreenManager.addScreen("start", startScreen);
             startScreen.show();
+            // for testing
+            //var go = new GameOverScreen(frame);
+            //ScreenManager.addScreen("gameover", go);
+            //go.score(1);
+            //go.show();
         }
         function onPause() {
             // TODO: This application has been suspended. Save application state here.

@@ -35,14 +35,8 @@ export class HighScoreStorage {
 
     public isHighScore(score: number) {
         var highScores = this.getHighScores();
-        if (highScores.length < this.maxEntries) return true;
-
-        for (var hscore of highScores) {
-            if (score < hscore.score)
-                return false;
-        }
-
-        return true;
+        var lowest = highScores[highScores.length - 1];
+        return (highScores.length < this.maxEntries) || (score > lowest.score);
     }
 
     public addScore(name: string, score: number, longestStreak: number = 0): boolean {
@@ -60,8 +54,8 @@ export class HighScoreStorage {
         var scores = this.getHighScores();
         scores.push(score);
 
-        var sorted = scores.sort(this.sort);
-        sorted.slice(0, this.maxEntries);
+        scores = scores.sort(this.sort)
+            .slice(0, this.maxEntries);
 
         var highscores = { scores: scores };
         localStorage.setItem('highscores', JSON.stringify(highscores));
@@ -69,7 +63,22 @@ export class HighScoreStorage {
     }
 
     public resetScores() {
-        var highscores = { scores: [{ name: 'ros', score: 2 }, { name: 'joh', score: 1 }] };
+        //var highscores = {
+        //    scores: [
+        //        { name: 'Johan', score: 43 },
+        //        { name: 'Remco', score: 38 },
+        //        { name: 'Bob', score: 27 },
+        //        { name: 'John', score: 15 },
+        //        { name: 'Chris', score: 4 }]
+        //};
+        var highscores = {
+            scores: [
+                { name: 'Johan', score: 5 },
+                { name: 'Remco', score: 4 },
+                { name: 'Bob', score: 3 },
+                { name: 'John', score: 2 },
+                { name: 'Chris', score: 1 }]
+        };
         localStorage.setItem('highscores', JSON.stringify(highscores));
     }
 

@@ -3,7 +3,11 @@
 import {Frame} from "Frame";
 import * as $ from "jquery";
 import {StartScreen} from "StartScreen";
+import {GameOverScreen} from "GameOverScreen";
 import * as ScreenManager from "ScreenManager";
+import {HighScoreStorage} from "HighScores";
+
+var scores = new HighScoreStorage();
 
 module App {
     export function initialize() {
@@ -20,7 +24,13 @@ module App {
         var frame = new Frame();
         var startScreen = new StartScreen(frame);
         ScreenManager.addScreen("start", startScreen);
-        startScreen.show();        
+        startScreen.show();
+
+        // for testing
+        //var go = new GameOverScreen(frame);
+        //ScreenManager.addScreen("gameover", go);
+        //go.score(1);
+        //go.show();
     }
 
     function onPause() {

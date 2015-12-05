@@ -7,6 +7,7 @@ import {Screen} from "Screen";
 import {GameScreen} from "GameScreen";
 import * as Scores from "HighScores";
 import * as ko from "knockout";
+import * as ScreenManager from "ScreenManager";
 
 var scores = new Scores.HighScoreStorage();
 

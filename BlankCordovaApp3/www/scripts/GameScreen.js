@@ -3,7 +3,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-define(["require", "exports", "Screen", "GameOverScreen"], function (require, exports, Screen_1, GameOverScreen_1) {
+define(["require", "exports", "Screen", "GameOverScreen", "ScreenManager"], function (require, exports, Screen_1, GameOverScreen_1, ScreenManager) {
     "use strict";
     var GameScreen = (function (_super) {
         __extends(GameScreen, _super);
@@ -16,6 +16,7 @@ define(["require", "exports", "Screen", "GameOverScreen"], function (require, ex
             this.shouldRenderRipples = false;
             this.shouldRenderTouches = false;
             this.popupmesssagedelay = 750;
+            ScreenManager.addScreen("gamescreen", this);
             this.engine = engine;
             this.gameOverScreen = new GameOverScreen_1.GameOverScreen(engine);
             this.engine.TimeBonus.on(function (e) { return _this.onTimeBonus(e); });
