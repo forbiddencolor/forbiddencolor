@@ -1,11 +1,11 @@
 {
      "android": {
-         "release": {
-             "keystore": "",
-             "storePassword": "",
-             "alias": "",
-             "password" : "",
-             "keystoreType": ""
-         }
+      "release": {
+        "keystore": "c:/users/Remco/.ssh/forbiddencolor.keystore",
+        "storePassword": "",
+        "alias": "forbiddencolor",
+        "password": "",
+        "keystoreType": ""
+      }
      }
  }
