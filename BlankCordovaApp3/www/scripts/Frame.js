@@ -1,5 +1,6 @@
-define(["require", "exports", './LiteEvents'], function (require, exports, LiteEvents_1) {
+define(["require", "exports", './LiteEvents', "HighScores"], function (require, exports, LiteEvents_1, HighScores_1) {
     "use strict";
+    var scores = new HighScores_1.HighScoreStorage();
     var NextFrameEventArgs = (function () {
         function NextFrameEventArgs(correct) {
             this.Correct = correct;
@@ -133,7 +134,6 @@ define(["require", "exports", './LiteEvents'], function (require, exports, LiteE
         Frame.prototype.endGame = function () {
             var score = this.Score;
             this.TimeLeft = 0;
-            //clearInterval(this._interval);
             this.IsStarted = false;
             this.IsPlaying = false;
             this.onGameEnded.trigger(new GameEndedEventArgs(score));

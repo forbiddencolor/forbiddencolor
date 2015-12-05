@@ -7,6 +7,14 @@
     -webkit-tap-highlight-color: rgba(0,0,0,0);
     /* prevent copy paste, to allow, change 'none' to 'text' */
     -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+}
+
+span {
+    cursor: default;
 }
 
 input[type="checkbox"] {
@@ -24,26 +32,24 @@ input::-webkit-input-placeholder {
 
 html, body {
     -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -o-user-select: none;
+    user-select: none;
     height: 100%;
     width: 100%;
     margin: 0;
     padding: 0;
     font-family: circulat;
+    background-color: #FF0000;
 }
 
-#page {
+.page {
     height: 100%;
     width: 100%;
     margin: 0;
     padding: 0;
-}
-
-#frame {
-    height: 100%;
-    width: auto;
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+    display: none;
 }
 
 #header {
@@ -168,7 +174,7 @@ footer {
         font-size: 1.5em;
     }
 
-#startscreen {
+#welcome {
     position: absolute;
     top: 0%;
     height: 100%;
@@ -190,6 +196,7 @@ div.startbutton {
     font-family: circulat;
     font-size: 8em;
     color: white;
+    cursor: pointer;
 }
 
 .startbutton > img {
@@ -248,10 +255,33 @@ button:focus {
         animation: ripple .5s ease-out;
     }
 
+@-moz-keyframes ripple {
+    to {
+        -webkit-transform: scale3d(1.5, 1.5, 1.5);
+        transform: scale3d(1.5, 1.5, 1.5);
+        opacity: 0;
+    }
+}
+
+@-webkit-keyframes ripple {
+    to {
+        -webkit-transform: scale3d(1.5, 1.5, 1.5);
+        transform: scale3d(1.5, 1.5, 1.5);
+        opacity: 0;
+    }
+}
+
 @keyframes ripple {
     to {
         -webkit-transform: scale3d(1.5, 1.5, 1.5);
         transform: scale3d(1.5, 1.5, 1.5);
         opacity: 0;
     }
+}
+
+.highscores {
+    top: 30%;
+    position: absolute;
+    width: 100%;
+    text-align: center;
 }

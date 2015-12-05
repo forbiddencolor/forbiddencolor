@@ -10,7 +10,25 @@
     <link href="css/animate.css" rel="stylesheet" />
 </head>
 <body>
-    <div id="page">
+    <div class="page" id="startscreen">
+        <div id="welcome">
+            <div class="howtoplay">
+                <span>Swipe the forbidden color<br />Tap all other colors</span>
+            </div>
+            <div class="highscores">
+                <ul data-bind="foreach: highScores">
+                    <li><span data-bind="text: name"></span>: <span data-bind="text: score"></span></li>
+                </ul>
+            </div>
+            <div class="startbutton">
+                <button id="startbutton" class="startbutton" style="border: 0; background: transparent">
+                    <span>Go</span>
+                </button>
+            </div>
+            <div class="credits"><span>R&amp;J</span></div>
+        </div>
+    </div>
+    <div class="page" id="gamescreen">
         <div id="header">
             <div id="timer">
                 <span></span>
@@ -23,9 +41,6 @@
             </div>
         </div>
         <div>
-            <div id="frame">
-
-            </div>
             <div id="oops"></div>
             <div id="plusscore"></div>
             <div id="forbiddencolor" class="popupmessage"><span>Forbidden color</span></div>
@@ -34,17 +49,19 @@
                 <div class="title"><span>Time Bonus!</span></div>
                 <div class="message"><span></span></div>
             </div>
-            <div id="startscreen">
-                <div class="howtoplay">
-                    <span>Swipe the forbidden color<br />Tap all other colors</span>
-                </div>
-                <div class="startbutton">
-                    <button id="startbutton" class="startbutton" style="border: 0; background: transparent">
-                        <span>Go</span>
-                    </button>
-                </div>
-                <div class="credits"><span>R&amp;J</span></div>
-            </div>
+        </div>
+    </div>
+    <div class="page" id="gameoverscreen">
+        <div class="gameover">
+            <a data-bind="click: hide"><span data-bind="visible: !isHighScore()">GAME OVER</span></a>
+            <span data-bind="visible: isHighScore()">NEW HIGHSCORE</span>
+        </div>
+        <div class="score">
+            <span data-bind="text: score"></span>
+        </div>
+        <div class="form">
+            <input type="text" data-bind="value: name" />
+            <button type="button" data-bind="click: saveScore"></button>
         </div>
     </div>
     <script data-main="scripts/index" src="scripts/require.js"></script>
