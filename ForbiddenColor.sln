@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.24627.0
+VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{262852C6-CD72-467D-83FE-5EEB1973A190}") = "BlankCordovaApp3", "BlankCordovaApp3\BlankCordovaApp3.jsproj", "{F542FFD0-C809-4478-9AB8-9DC307EF2F52}"
+Project("{262852C6-CD72-467D-83FE-5EEB1973A190}") = "ForbiddenColor", "ForbiddenColor\ForbiddenColor.jsproj", "{F542FFD0-C809-4478-9AB8-9DC307EF2F52}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
