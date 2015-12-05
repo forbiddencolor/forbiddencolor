@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<widget xmlns:cdv="http://cordova.apache.org/ns/1.0" xmlns:vs="http://schemas.microsoft.com/appx/2014/htmlapps" id="io.cordova.myappcc5e7e" version="0.1.0" xmlns="http://www.w3.org/ns/widgets" defaultlocale="en-US" android-versionCode="">
+<widget xmlns:cdv="http://cordova.apache.org/ns/1.0" xmlns:vs="http://schemas.microsoft.com/appx/2014/htmlapps" id="randj.forbiddencolor" version="0.1.0" xmlns="http://www.w3.org/ns/widgets" defaultlocale="en-US" android-versionCode="">
   <name>Forbidden Color</name>
   <description>Most stressful and simple game ever. Swipe the forbidden color and beat your friends.</description>
   <author href="http://cordova.io" email="dev@cordova.apache.org">Remco &amp; Johan</author>
@@ -110,4 +110,5 @@
       <vs:name>Forbidden Color</vs:name>
     </vs:platformSpecificWidget>
   </vs:platformSpecificValues>
+  <preference name="ShowTitle" value="False" />
 </widget>
