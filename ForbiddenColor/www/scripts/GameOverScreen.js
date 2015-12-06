@@ -56,7 +56,7 @@ define(["require", "exports", "Screen", "HighScores", "ScreenManager", "knockout
         };
         GameOverScreen.prototype.mainScreen = function () {
             this.hide();
-            ScreenManager.getScreen("start").show();
+            ScreenManager.getScreen("startscreen").show();
         };
         return GameOverScreen;
     })(Screen_1.Screen);

@@ -3,7 +3,6 @@
 import * as Engine from "Frame";
 import {Screen} from "Screen";
 import {GameOverScreen} from "GameOverScreen";
-import * as ScreenManager from "ScreenManager";
 import * as timestamp from "timestamp";
 
 export class GameScreen extends Screen {
@@ -17,7 +16,6 @@ export class GameScreen extends Screen {
 
     constructor(engine: Engine.Frame) {
         super("gamescreen");
-        ScreenManager.addScreen("gamescreen", this);
 
         this.engine = engine;
         this.gameOverScreen = new GameOverScreen(engine);

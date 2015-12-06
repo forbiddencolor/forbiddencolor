@@ -21,7 +21,6 @@ module App {
         // Show start screen
         var frame = new Frame();
         var startScreen = new StartScreen(frame);
-        ScreenManager.addScreen("start", startScreen);
         startScreen.show();
 
         // for testing
