@@ -28,7 +28,7 @@ input[type="text"] {
     -webkit-box-shadow: none !important;
     box-shadow: none !important;
     outline: none;
-    text-decoration: none;    
+    text-decoration: none;
 }
 
     input[type="text"]:focus {
@@ -422,13 +422,15 @@ button:focus {
     #gameoverscreen .form input[type=text] {
         height: 40px;
         width: 180px;
-        font-size: 1.8em;
-        padding: 4px;
+        background-color: #000000;
+        background-color: rgba(0,0,0,0.1);
+        border-radius: 20px;
+        border: 1px solid #010101;
+        border: 2px solid rgba(1,1,1,0.3);
+        color: white;
+        font-size: 2em;
+        text-align: center;
     }
 
 input[type=text] {
-    background-color: rgba(0,0,0,0.1);
-    border-radius: 30px;
-    border: 1px dotted black;
-    color: white;
 }
