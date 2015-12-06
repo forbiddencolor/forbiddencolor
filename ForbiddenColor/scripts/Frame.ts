@@ -1,9 +1,7 @@
 ﻿"use strict";
 
-import {ILiteEvent, LiteEvent} from './LiteEvents';
-import {HighScoreStorage} from "HighScores";
-
-var scores = new HighScoreStorage();
+import {ILiteEvent, LiteEvent} from "LiteEvents";
+import * as timestamp from "timestamp";
 
 export class NextFrameEventArgs {
     public Correct: boolean;
@@ -38,15 +36,9 @@ export class CountDownEventArgs {
 }
 
 export class GameStartedEventArgs {
-
-    constructor() {
-    }
 }
 
 export class TimerUpdatedEventArgs {
-
-    constructor() {
-    }
 }
 
 export class Color {
@@ -100,8 +92,8 @@ export class Frame {
         this.TimeLeft = 0;
     }
 
-    public start() {
-        if (this.IsStarted) return;
+    public start(): void {
+        if (this.IsStarted) { return; }
 
         this.IsStarted = true;
         this.IsPlaying = false;
@@ -128,7 +120,7 @@ export class Frame {
                 clearInterval(this._countdownInterval);
                 this.CurrentColor = this.pickColor();
                 this.IsPlaying = true;
-                setTimeout(() => { this.animLoop(this.gameLoop, 100); }, 500);                
+                setTimeout(() => { this.animLoop(this.gameLoop, 100); }, 500);
             }
 
             this.onCountDown.trigger(new CountDownEventArgs(this.CountDown));
@@ -138,17 +130,17 @@ export class Frame {
         this.onCountDown.trigger(new CountDownEventArgs(this.CountDown));
     }
 
-    public endGame() {        
+    public endGame(): void {
         var score = this.Score;
-        
+
         this.TimeLeft = 0;
         this.IsStarted = false;
         this.IsPlaying = false;
         this.onGameEnded.trigger(new GameEndedEventArgs(score));
     }
 
-    public swipe() {
-        if (!this.IsPlaying) return;
+    public swipe(): void {
+        if (!this.IsPlaying) { return; }
 
         if (this.CurrentColor === this.ForbiddenColor) {
             this.success();
@@ -157,8 +149,8 @@ export class Frame {
         }
     }
 
-    public tap() {
-        if (!this.IsPlaying) return;
+    public tap(): void {
+        if (!this.IsPlaying) { return; }
 
         if (this.CurrentColor === this.ForbiddenColor) {
             this.missClick();
@@ -173,7 +165,7 @@ export class Frame {
         return color;
     }
 
-    success() {
+    success(): void {
         this.Score++;
         this.CurrentStreak++;
 
@@ -186,14 +178,14 @@ export class Frame {
         this.onNextFrame.trigger(new NextFrameEventArgs(true));
     }
 
-    missClick() {
+    missClick(): void {
         this.Score = 0;
         this.CurrentStreak = 0;
         this.CurrentColor = this.pickColor();
         this.onNextFrame.trigger(new NextFrameEventArgs(false));
     }
 
-    updateInterval() {
+    updateInterval(): void {
         this.TimeLeft -= 0.1;
 
         if (this.TimeLeft <= 0) {
@@ -204,8 +196,8 @@ export class Frame {
         this.onTimerUpdated.trigger(new TimerUpdatedEventArgs());
     }
 
-    gameLoop(delta: number) {
-        if (!this.IsStarted) return false;
+    gameLoop(delta: number): boolean {
+        if (!this.IsStarted) { return false; }
 
         this.TimeLeft -= delta / 1000;
 
@@ -218,15 +210,11 @@ export class Frame {
         return true;
     }
 
-    animLoop(render: Function, speed: number = (1000 / 30)) {
-        function timestamp() {
-            return window.performance && window.performance.now ? window.performance.now() : +new Date;
-        }
-
-        var running, lastFrame = timestamp(),
+    animLoop(render: Function, speed: number = (1000 / 30)): void {
+        var running, lastFrame = timestamp.now(),
             raf = window.requestAnimationFrame,
             that = this;
-        function loop(now) {
+        function loop(now: number): void {
             if (running !== false) {
                 raf(loop);
                 var elapsed = Math.min(1000, now - lastFrame);

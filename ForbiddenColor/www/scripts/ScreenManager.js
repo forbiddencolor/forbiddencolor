@@ -1,7 +1,7 @@
 define(["require", "exports"], function (require, exports) {
-    "use strict";
     var ScreenManager;
     (function (ScreenManager) {
+        "use strict";
         var screens = [];
         function addScreen(name, screen) {
             screens[name] = screen;

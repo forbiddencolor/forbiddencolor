@@ -1,5 +1,6 @@
 /// <reference path='typings/requirejs/require.d.ts' />
 /// <reference path='typings/cordova/cordova.d.ts' />
+"use strict";
 requirejs.config({
     baseUrl: "scripts",
     paths: {

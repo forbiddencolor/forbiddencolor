@@ -1,6 +1,5 @@
-define(["require", "exports", './LiteEvents', "HighScores"], function (require, exports, LiteEvents_1, HighScores_1) {
+define(["require", "exports", "LiteEvents", "timestamp"], function (require, exports, LiteEvents_1, timestamp) {
     "use strict";
-    var scores = new HighScores_1.HighScoreStorage();
     var NextFrameEventArgs = (function () {
         function NextFrameEventArgs(correct) {
             this.Correct = correct;
@@ -102,8 +101,9 @@ define(["require", "exports", './LiteEvents', "HighScores"], function (require, 
         });
         Frame.prototype.start = function () {
             var _this = this;
-            if (this.IsStarted)
+            if (this.IsStarted) {
                 return;
+            }
             this.IsStarted = true;
             this.IsPlaying = false;
             this.CurrentStreak = 0;
@@ -139,8 +139,9 @@ define(["require", "exports", './LiteEvents', "HighScores"], function (require, 
             this.onGameEnded.trigger(new GameEndedEventArgs(score));
         };
         Frame.prototype.swipe = function () {
-            if (!this.IsPlaying)
+            if (!this.IsPlaying) {
                 return;
+            }
             if (this.CurrentColor === this.ForbiddenColor) {
                 this.success();
             }
@@ -149,8 +150,9 @@ define(["require", "exports", './LiteEvents', "HighScores"], function (require, 
             }
         };
         Frame.prototype.tap = function () {
-            if (!this.IsPlaying)
+            if (!this.IsPlaying) {
                 return;
+            }
             if (this.CurrentColor === this.ForbiddenColor) {
                 this.missClick();
             }
@@ -188,8 +190,9 @@ define(["require", "exports", './LiteEvents', "HighScores"], function (require, 
             this.onTimerUpdated.trigger(new TimerUpdatedEventArgs());
         };
         Frame.prototype.gameLoop = function (delta) {
-            if (!this.IsStarted)
+            if (!this.IsStarted) {
                 return false;
+            }
             this.TimeLeft -= delta / 1000;
             if (this.TimeLeft <= 0) {
                 this.endGame();
@@ -200,10 +203,7 @@ define(["require", "exports", './LiteEvents', "HighScores"], function (require, 
         };
         Frame.prototype.animLoop = function (render, speed) {
             if (speed === void 0) { speed = (1000 / 30); }
-            function timestamp() {
-                return window.performance && window.performance.now ? window.performance.now() : +new Date;
-            }
-            var running, lastFrame = timestamp(), raf = window.requestAnimationFrame, that = this;
+            var running, lastFrame = timestamp.now(), raf = window.requestAnimationFrame, that = this;
             function loop(now) {
                 if (running !== false) {
                     raf(loop);

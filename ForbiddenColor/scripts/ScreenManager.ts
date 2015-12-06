@@ -1,11 +1,12 @@
-﻿"use strict";
-
-import {Screen} from "Screen";
+﻿import {Screen} from "Screen";
 
 module ScreenManager {
+
+    "use strict";
+
     var screens: Screen[] = [];
 
-    export function addScreen(name: string, screen: Screen) {
+    export function addScreen(name: string, screen: Screen): void {
         screens[name] = screen;
     }
 

@@ -9,11 +9,11 @@ export class Screen {
         this.Id = id;
     }
 
-    public show() {
+    public show(): void {
         $("#" + this.Id).show();
     }
 
-    public hide() {
+    public hide(): void {
         $("#" + this.Id).hide();
     }
 }

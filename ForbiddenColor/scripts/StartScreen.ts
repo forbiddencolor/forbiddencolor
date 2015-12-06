@@ -7,7 +7,7 @@ import {Screen} from "Screen";
 import {GameScreen} from "GameScreen";
 import * as Scores from "HighScores";
 import * as ko from "knockout";
-import * as ScreenManager from "ScreenManager";
+// import * as ScreenManager from "ScreenManager";
 
 var scores = new Scores.HighScoreStorage();
 
@@ -33,18 +33,18 @@ export class StartScreen extends Screen {
         ko.applyBindings(this, $("#startscreen")[0]);
     }
 
-    public show() {
+    public show(): void {
         $("body").css("background-color", this.engine.CurrentColor.color);
         this.updateHighScores();
         super.show();
     }
 
-    public hide() {
+    public hide(): void {
 
         super.hide();
     }
 
-    private updateHighScores() {
+    private updateHighScores(): void {
         this.highScores.removeAll();
         scores.getHighScores().forEach(e=> this.highScores.push(e));
     }

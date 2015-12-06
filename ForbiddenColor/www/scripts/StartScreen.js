@@ -6,6 +6,7 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 define(["require", "exports", "Screen", "GameScreen", "HighScores", "knockout"], function (require, exports, Screen_1, GameScreen_1, Scores, ko) {
     "use strict";
+    // import * as ScreenManager from "ScreenManager";
     var scores = new Scores.HighScoreStorage();
     var StartScreen = (function (_super) {
         __extends(StartScreen, _super);

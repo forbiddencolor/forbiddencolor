@@ -15,7 +15,7 @@ define(["require", "exports"], function (require, exports) {
         HighScoreStorage.prototype.getHighScores = function () {
             var scores;
             try {
-                var highscoresStr = localStorage.getItem('highscores');
+                var highscoresStr = localStorage.getItem("highscores");
                 var highscores = JSON.parse(highscoresStr);
                 if (!highscores || !highscores.scores) {
                     this.resetScores();
@@ -43,34 +43,36 @@ define(["require", "exports"], function (require, exports) {
             return this.addHighScore(hscore);
         };
         HighScoreStorage.prototype.addHighScore = function (score) {
-            if (!this.isHighScore(score.score))
+            if (!this.isHighScore(score.score)) {
                 return false;
+            }
             var scores = this.getHighScores();
             scores.push(score);
             scores = scores.sort(this.sort)
                 .slice(0, this.maxEntries);
             var highscores = { scores: scores };
-            localStorage.setItem('highscores', JSON.stringify(highscores));
+            localStorage.setItem("highscores", JSON.stringify(highscores));
             return true;
         };
         HighScoreStorage.prototype.resetScores = function () {
-            //var highscores = {
-            //    scores: [
-            //        { name: 'Johan', score: 43 },
-            //        { name: 'Remco', score: 38 },
-            //        { name: 'Bob', score: 27 },
-            //        { name: 'John', score: 15 },
-            //        { name: 'Chris', score: 4 }]
-            //};
             var highscores = {
                 scores: [
-                    { name: 'Johan', score: 5 },
-                    { name: 'Remco', score: 4 },
-                    { name: 'Bob', score: 3 },
-                    { name: 'John', score: 2 },
-                    { name: 'Chris', score: 1 }]
+                    { name: "Johan", score: 43 },
+                    { name: "Remco", score: 38 },
+                    { name: "Bob", score: 27 },
+                    { name: "John", score: 15 },
+                    { name: "Chris", score: 4 }]
             };
-            localStorage.setItem('highscores', JSON.stringify(highscores));
+            // For testing
+            //var highscores = {
+            //    scores: [
+            //        { name: 'Johan', score: 5 },
+            //        { name: 'Remco', score: 4 },
+            //        { name: 'Bob', score: 3 },
+            //        { name: 'John', score: 2 },
+            //        { name: 'Chris', score: 1 }]
+            //};
+            localStorage.setItem("highscores", JSON.stringify(highscores));
         };
         HighScoreStorage.prototype.sort = function (a, b) {
             return a.score < b.score ? 1 : 0;

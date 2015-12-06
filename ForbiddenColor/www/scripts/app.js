@@ -1,8 +1,8 @@
 /// <reference path="typings/jquery/jquery.d.ts" />
-define(["require", "exports", "Frame", "StartScreen", "ScreenManager", "HighScores"], function (require, exports, Frame_1, StartScreen_1, ScreenManager, HighScores_1) {
-    var scores = new HighScores_1.HighScoreStorage();
+define(["require", "exports", "Frame", "StartScreen", "ScreenManager"], function (require, exports, Frame_1, StartScreen_1, ScreenManager) {
     var App;
     (function (App) {
+        "use strict";
         function initialize() {
             document.addEventListener("deviceready", onDeviceReady, false);
         }

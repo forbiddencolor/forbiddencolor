@@ -3,7 +3,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-define(["require", "exports", "Screen", "GameOverScreen", "ScreenManager"], function (require, exports, Screen_1, GameOverScreen_1, ScreenManager) {
+define(["require", "exports", "Screen", "GameOverScreen", "ScreenManager", "timestamp"], function (require, exports, Screen_1, GameOverScreen_1, ScreenManager, timestamp) {
     "use strict";
     var GameScreen = (function (_super) {
         __extends(GameScreen, _super);
@@ -31,7 +31,7 @@ define(["require", "exports", "Screen", "GameOverScreen", "ScreenManager"], func
             $("body").css("background-color", this.engine.CurrentColor.color);
             _super.prototype.show.call(this);
             this.__onTouchStart = this.onTouchStart.bind(this);
-            $("body").on('touchstart', this.__onTouchStart);
+            $("body").on("touchstart", this.__onTouchStart);
             this.engine.start();
             this.resetRipples();
             if (this.shouldRenderRipples) {
@@ -39,7 +39,7 @@ define(["require", "exports", "Screen", "GameOverScreen", "ScreenManager"], func
             }
         };
         GameScreen.prototype.hide = function () {
-            $("body").off('touchstart', this.__onTouchStart);
+            $("body").off("touchstart", this.__onTouchStart);
             _super.prototype.hide.call(this);
         };
         GameScreen.prototype.onTimerUpdated = function (e) {
@@ -66,7 +66,7 @@ define(["require", "exports", "Screen", "GameOverScreen", "ScreenManager"], func
         };
         GameScreen.prototype.onCountDownUpdated = function (e) {
             if (e.CountDown > 0) {
-                $('#forbiddencolor > span').html('Forbidden color<br />' + this.engine.CurrentColor.name);
+                $("#forbiddencolor > span").html("Forbidden color<br />" + this.engine.CurrentColor.name);
                 $("#forbiddencolor").removeClass("animated fadeOut");
                 $("#forbiddencolor").show();
             }
@@ -90,7 +90,7 @@ define(["require", "exports", "Screen", "GameOverScreen", "ScreenManager"], func
                 var delta = now - this.lastScoreTime;
                 if (delta > 180) {
                     this.lastScoreTime = now;
-                    var score = $('<div class="plusscore popupmessage" style="display: block"><span></span></div>');
+                    var score = $("<div class=\"plusscore popupmessage\" style=\"display: block\"><span></span></div>");
                     $("> span", score).text("+1");
                     $("#plusscore").append(score);
                     score.addClass("animated fadeOutDown");
@@ -103,7 +103,7 @@ define(["require", "exports", "Screen", "GameOverScreen", "ScreenManager"], func
                 if (this.popupMessageCount < 3) {
                     this.popupMessageCount++;
                     var $oops = $("#oops");
-                    var msg = $('<div class="oops popupmessage" style="display: block"><span></span></div>');
+                    var msg = $("<div class=\"oops popupmessage\" style=\"display: block\"><span></span></div>");
                     $("> span", msg).text("OOPS");
                     $oops.append(msg);
                     msg.addClass("animated bounceIn");
@@ -129,8 +129,9 @@ define(["require", "exports", "Screen", "GameOverScreen", "ScreenManager"], func
             var that = this, frame = this.engine;
             e.preventDefault();
             // if (!frame.IsStarted) return;
-            if (!e.originalEvent.touches || e.originalEvent.touches.length === 0)
+            if (!e.originalEvent.touches || e.originalEvent.touches.length === 0) {
                 return true;
+            }
             var touchStart = e.originalEvent.touches[0], startX = touchStart.pageX, startY = touchStart.pageY, lastX = startX, lastY = startY, touchStartTime = new Date().getTime(), lastMoveTime = touchStartTime;
             function removeTouchHandler() {
                 $("body").off("touchmove", moveHandler).off("touchend", endHandler);
@@ -156,7 +157,8 @@ define(["require", "exports", "Screen", "GameOverScreen", "ScreenManager"], func
             }
             ;
             function moveHandler(moveEvent) {
-                var touchMove = moveEvent.originalEvent.touches[0], movedX = Math.abs(touchMove.pageX - lastX), movedY = Math.abs(touchMove.pageY - lastY), timeDiff = new Date().getTime() - lastMoveTime;
+                var touchMove = moveEvent.originalEvent.touches[0], movedX = Math.abs(touchMove.pageX - lastX), movedY = Math.abs(touchMove.pageY - lastY);
+                // timeDiff = new Date().getTime() - lastMoveTime;
                 if (movedX > 60 || movedY > 60) {
                     lastX = touchMove.pageX;
                     lastY = touchMove.pageY;
@@ -168,12 +170,13 @@ define(["require", "exports", "Screen", "GameOverScreen", "ScreenManager"], func
             }
             that.waterRipple(lastX, lastY);
             that.showTouch(lastX, lastY);
-            $("body").on('touchmove', moveHandler).on("touchend", endHandler);
+            $("body").on("touchmove", moveHandler).on("touchend", endHandler);
             return true;
         };
         GameScreen.prototype.showTouch = function (pageX, pageY) {
-            if (!this.shouldRenderTouches)
+            if (!this.shouldRenderTouches) {
                 return;
+            }
             var target = $("#page");
             var ink = $("<div class='ripple'></div>");
             //if (target.find(".ink").length === 0)
@@ -185,16 +188,17 @@ define(["require", "exports", "Screen", "GameOverScreen", "ScreenManager"], func
             ink.css({ height: d / 2, width: d / 2 });
             var x = pageX - target.offset().left - ink.width() / 2;
             var y = pageY - target.offset().top - ink.height() / 2;
-            ink.one('animationend webkitAnimationEnd oAnimationEnd MSAnimationEnd', function () {
+            ink.one("animationend webkitAnimationEnd oAnimationEnd MSAnimationEnd", function () {
                 $(this).remove();
             });
             setTimeout(function () {
-                ink.css({ top: y + 'px', left: x + 'px' }).addClass("show");
+                ink.css({ top: y + "px", left: x + "px" }).addClass("show");
             }, 0);
         };
         GameScreen.prototype.resetRipples = function () {
-            if (!this.shouldRenderRipples)
+            if (!this.shouldRenderRipples) {
                 return;
+            }
             $("body").ripples("destroy");
             $("body").ripples({
                 resolution: 512,
@@ -211,16 +215,14 @@ define(["require", "exports", "Screen", "GameOverScreen", "ScreenManager"], func
         GameScreen.prototype.waterRipple = function (x, y, radius, strength) {
             if (radius === void 0) { radius = 10; }
             if (strength === void 0) { strength = 0.06; }
-            if (!this.shouldRenderRipples)
+            if (!this.shouldRenderRipples) {
                 return;
+            }
             this.currentRipple.push({ x: x, y: y, radius: radius, strength: strength });
         };
         GameScreen.prototype.animLoop = function (render, speed) {
             if (speed === void 0) { speed = (1000 / 30); }
-            function timestamp() {
-                return window.performance && window.performance.now ? window.performance.now() : +new Date;
-            }
-            var running, lastFrame = timestamp(), raf = window.requestAnimationFrame, that = this;
+            var running, lastFrame = timestamp.now(), raf = window.requestAnimationFrame, that = this;
             function loop(now) {
                 if (running !== false) {
                     raf(loop);

@@ -1,9 +1,10 @@
 ﻿"use strict";
 
-import * as Engine from "Frame"
-import {Screen} from "Screen"
-import {GameOverScreen} from "GameOverScreen"
+import * as Engine from "Frame";
+import {Screen} from "Screen";
+import {GameOverScreen} from "GameOverScreen";
 import * as ScreenManager from "ScreenManager";
+import * as timestamp from "timestamp";
 
 export class GameScreen extends Screen {
     private currentRipple = [];
@@ -31,11 +32,11 @@ export class GameScreen extends Screen {
         // ko.applyBindings(this, $("#gamescreen")[0]);
     }
 
-    public show() {
+    public show(): void {
         $("body").css("background-color", this.engine.CurrentColor.color);
         super.show();
         this.__onTouchStart = this.onTouchStart.bind(this);
-        $("body").on('touchstart', this.__onTouchStart);
+        $("body").on("touchstart", this.__onTouchStart);
         this.engine.start();
 
         this.resetRipples();
@@ -44,12 +45,12 @@ export class GameScreen extends Screen {
         }
     }
 
-    public hide() {
-        $("body").off('touchstart', this.__onTouchStart);
+    public hide(): void {
+        $("body").off("touchstart", this.__onTouchStart);
         super.hide();
     }
 
-    private onTimerUpdated(e: Engine.TimerUpdatedEventArgs) {
+    private onTimerUpdated(e: Engine.TimerUpdatedEventArgs): void {
         if (this.engine.TimeLeft < 3) {
             $("#timer > span").text(this.engine.TimeLeft.toFixed(1));
         } else {
@@ -57,7 +58,7 @@ export class GameScreen extends Screen {
         }
     }
 
-    private onGameEnded(e: Engine.GameEndedEventArgs) {
+    private onGameEnded(e: Engine.GameEndedEventArgs): void {
         $("#score > span").text(this.engine.Score.toString());
         $("#timer > span").text(this.engine.TimeLeft.toString());
         this.hide();
@@ -65,7 +66,7 @@ export class GameScreen extends Screen {
         this.gameOverScreen.show();
     }
 
-    private onGameStarted(e: Engine.GameStartedEventArgs) {
+    private onGameStarted(e: Engine.GameStartedEventArgs): void {
         $("#score > span").text(this.engine.Score.toString());
         $("#timer > span").text(this.engine.TimeLeft.toString());
         $("body").css("background-color", this.engine.CurrentColor.color);
@@ -73,9 +74,9 @@ export class GameScreen extends Screen {
         $("#currentforbiddencolor").html("" + this.engine.CurrentColor.name);
     }
 
-    private onCountDownUpdated(e: Engine.CountDownEventArgs) {
+    private onCountDownUpdated(e: Engine.CountDownEventArgs): void {
         if (e.CountDown > 0) {
-            $('#forbiddencolor > span').html('Forbidden color<br />' + this.engine.CurrentColor.name);
+            $("#forbiddencolor > span").html("Forbidden color<br />" + this.engine.CurrentColor.name);
             $("#forbiddencolor").removeClass("animated fadeOut");
             $("#forbiddencolor").show();
         } else {
@@ -95,13 +96,13 @@ export class GameScreen extends Screen {
         $("body").css("background-color", this.engine.CurrentColor.color);
     }
 
-    private onNextFrame(e: Engine.NextFrameEventArgs) {
+    private onNextFrame(e: Engine.NextFrameEventArgs): void {
         if (e.Correct) {
             var now = +new Date;
             var delta = now - this.lastScoreTime;
             if (delta > 180) {
                 this.lastScoreTime = now;
-                var score = $('<div class="plusscore popupmessage" style="display: block"><span></span></div>');
+                var score = $("<div class=\"plusscore popupmessage\" style=\"display: block\"><span></span></div>");
                 $("> span", score).text("+1");
                 $("#plusscore").append(score);
                 score.addClass("animated fadeOutDown");
@@ -113,7 +114,7 @@ export class GameScreen extends Screen {
             if (this.popupMessageCount < 3) {
                 this.popupMessageCount++;
                 var $oops = $("#oops");
-                var msg = $('<div class="oops popupmessage" style="display: block"><span></span></div>');
+                var msg = $("<div class=\"oops popupmessage\" style=\"display: block\"><span></span></div>");
                 $("> span", msg).text("OOPS");
                 $oops.append(msg);
                 msg.addClass("animated bounceIn");
@@ -128,7 +129,7 @@ export class GameScreen extends Screen {
         $("body").css("background-color", this.engine.CurrentColor.color);
     }
 
-    private onTimeBonus(e: Engine.TimeBonusEventArgs) {
+    private onTimeBonus(e: Engine.TimeBonusEventArgs): void {
         $("#timebonus .message > span").text("+" + e.ExtraTime);
 
         $("#timebonus").removeClass("animated bounceIn");
@@ -139,14 +140,16 @@ export class GameScreen extends Screen {
         }, this.popupmesssagedelay);
     }
 
-    private onTouchStart(e: any) {
+    private onTouchStart(e: any): boolean {
         var that = this,
             frame = this.engine;
         e.preventDefault();
-            
+
         // if (!frame.IsStarted) return;
 
-        if (!e.originalEvent.touches || e.originalEvent.touches.length === 0) return true;
+        if (!e.originalEvent.touches || e.originalEvent.touches.length === 0) {
+            return true;
+        }
 
         var touchStart = e.originalEvent.touches[0],
             startX: number = touchStart.pageX,
@@ -156,7 +159,7 @@ export class GameScreen extends Screen {
             touchStartTime = new Date().getTime(),
             lastMoveTime = touchStartTime;
 
-        function removeTouchHandler() {
+        function removeTouchHandler(): void {
             $("body").off("touchmove", moveHandler).off("touchend", endHandler);
         };
 
@@ -188,8 +191,8 @@ export class GameScreen extends Screen {
         function moveHandler(moveEvent): boolean {
             var touchMove = moveEvent.originalEvent.touches[0],
                 movedX = Math.abs(touchMove.pageX - lastX),
-                movedY = Math.abs(touchMove.pageY - lastY),
-                timeDiff = new Date().getTime() - lastMoveTime;
+                movedY = Math.abs(touchMove.pageY - lastY);
+            // timeDiff = new Date().getTime() - lastMoveTime;
 
             if (movedX > 60 || movedY > 60) {
                 lastX = touchMove.pageX;
@@ -206,12 +209,12 @@ export class GameScreen extends Screen {
 
         that.waterRipple(lastX, lastY);
         that.showTouch(lastX, lastY);
-        $("body").on('touchmove', moveHandler).on("touchend", endHandler);
+        $("body").on("touchmove", moveHandler).on("touchend", endHandler);
         return true;
     }
 
-    private showTouch(pageX, pageY) {
-        if (!this.shouldRenderTouches) return;
+    private showTouch(pageX, pageY): void {
+        if (!this.shouldRenderTouches) { return; }
 
         var target = $("#page");
         var ink = $("<div class='ripple'></div>");
@@ -228,17 +231,17 @@ export class GameScreen extends Screen {
         var x = pageX - target.offset().left - ink.width() / 2;
         var y = pageY - target.offset().top - ink.height() / 2;
 
-        ink.one('animationend webkitAnimationEnd oAnimationEnd MSAnimationEnd', function () {
+        ink.one("animationend webkitAnimationEnd oAnimationEnd MSAnimationEnd", function (): void {
             $(this).remove();
         });
 
         setTimeout(() => {
-            ink.css({ top: y + 'px', left: x + 'px' }).addClass("show");
+            ink.css({ top: y + "px", left: x + "px" }).addClass("show");
         }, 0);
     }
 
-    private resetRipples() {
-        if (!this.shouldRenderRipples) return;
+    private resetRipples(): void {
+        if (!this.shouldRenderRipples) { return; }
 
         $("body").ripples("destroy");
 
@@ -249,7 +252,7 @@ export class GameScreen extends Screen {
     }
 
 
-    private renderRipple() {
+    private renderRipple(): void {
         if (this.currentRipple.length > 0) {
             var ripple = this.currentRipple.pop();
             this.currentRipple = [];
@@ -257,21 +260,17 @@ export class GameScreen extends Screen {
         }
     }
 
-    private waterRipple(x: number, y: number, radius: number = 10, strength: number = 0.06) {
-        if (!this.shouldRenderRipples) return;
+    private waterRipple(x: number, y: number, radius: number = 10, strength: number = 0.06): void {
+        if (!this.shouldRenderRipples) { return; }
 
         this.currentRipple.push({ x, y, radius, strength });
     }
 
-    private animLoop(render: Function, speed: number = (1000 / 30)) {
-        function timestamp() {
-            return window.performance && window.performance.now ? window.performance.now() : +new Date;
-        }
-
-        var running, lastFrame = timestamp(),
+    private animLoop(render: Function, speed: number = (1000 / 30)): void {
+        var running, lastFrame = timestamp.now(),
             raf = window.requestAnimationFrame,
             that = this;
-        function loop(now) {
+        function loop(now: number): void {
             if (running !== false) {
                 raf(loop);
                 var elapsed = Math.min(1000, now - lastFrame);
@@ -286,6 +285,6 @@ export class GameScreen extends Screen {
         loop(lastFrame);
     }
     engine: Engine.Frame;
-    __onTouchStart : any;
+    __onTouchStart: any;
     gameOverScreen: GameOverScreen;
 }
