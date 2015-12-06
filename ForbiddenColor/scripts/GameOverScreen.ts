@@ -49,7 +49,7 @@ export class GameOverScreen extends Screen {
 
     private updateHighScores(): void {
         this.highScores.removeAll();
-        scores.getHighScores().forEach(e=> this.highScores.push(e));
+        scores.getHighScores().forEach(e => this.highScores.push(e));
         this.isHighScore(scores.isHighScore(this.score()));
     }
 
@@ -67,7 +67,7 @@ export class GameOverScreen extends Screen {
 
     public mainScreen(): void {
         this.hide();
-        ScreenManager.getScreen("start").show();
+        ScreenManager.getScreen("startscreen").show();
     }
 
     engine: Frame;

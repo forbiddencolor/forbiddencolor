@@ -1,5 +1,5 @@
 /// <reference path="typings/jquery/jquery.d.ts" />
-define(["require", "exports", "Frame", "StartScreen", "ScreenManager"], function (require, exports, Frame_1, StartScreen_1, ScreenManager) {
+define(["require", "exports", "Frame", "StartScreen"], function (require, exports, Frame_1, StartScreen_1) {
     var App;
     (function (App) {
         "use strict";
@@ -15,7 +15,6 @@ define(["require", "exports", "Frame", "StartScreen", "ScreenManager"], function
             // Show start screen
             var frame = new Frame_1.Frame();
             var startScreen = new StartScreen_1.StartScreen(frame);
-            ScreenManager.addScreen("start", startScreen);
             startScreen.show();
             // for testing
             //var go = new GameOverScreen(frame);

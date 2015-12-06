@@ -20,12 +20,12 @@ export class GameScreen extends Screen {
         this.engine = engine;
         this.gameOverScreen = new GameOverScreen(engine);
 
-        this.engine.TimeBonus.on(e=> this.onTimeBonus(e));
-        this.engine.NextFrame.on(e=> this.onNextFrame(e));
-        this.engine.GameStarted.on(e=> this.onGameStarted(e));
-        this.engine.GameEnded.on(e=> this.onGameEnded(e));
-        this.engine.TimerUpdated.on(e=> this.onTimerUpdated(e));
-        this.engine.CountDownUpdated.on(e=> this.onCountDownUpdated(e));
+        this.engine.TimeBonus.on(e => this.onTimeBonus(e));
+        this.engine.NextFrame.on(e => this.onNextFrame(e));
+        this.engine.GameStarted.on(e => this.onGameStarted(e));
+        this.engine.GameEnded.on(e => this.onGameEnded(e));
+        this.engine.TimerUpdated.on(e => this.onTimerUpdated(e));
+        this.engine.CountDownUpdated.on(e => this.onCountDownUpdated(e));
 
         // ko.applyBindings(this, $("#gamescreen")[0]);
     }
@@ -212,7 +212,9 @@ export class GameScreen extends Screen {
     }
 
     private showTouch(pageX, pageY): void {
-        if (!this.shouldRenderTouches) { return; }
+        if (!this.shouldRenderTouches) {
+            return;
+        }
 
         var target = $("#page");
         var ink = $("<div class='ripple'></div>");
@@ -229,7 +231,7 @@ export class GameScreen extends Screen {
         var x = pageX - target.offset().left - ink.width() / 2;
         var y = pageY - target.offset().top - ink.height() / 2;
 
-        ink.one("animationend webkitAnimationEnd oAnimationEnd MSAnimationEnd", function (): void {
+        ink.one("animationend webkitAnimationEnd oAnimationEnd MSAnimationEnd", function(): void {
             $(this).remove();
         });
 
@@ -239,7 +241,9 @@ export class GameScreen extends Screen {
     }
 
     private resetRipples(): void {
-        if (!this.shouldRenderRipples) { return; }
+        if (!this.shouldRenderRipples) {
+            return;
+        }
 
         $("body").ripples("destroy");
 
@@ -259,29 +263,33 @@ export class GameScreen extends Screen {
     }
 
     private waterRipple(x: number, y: number, radius: number = 10, strength: number = 0.06): void {
-        if (!this.shouldRenderRipples) { return; }
+        if (!this.shouldRenderRipples) {
+            return;
+        }
 
         this.currentRipple.push({ x, y, radius, strength });
     }
 
     private animLoop(render: Function, speed: number = (1000 / 30)): void {
-        var running, lastFrame = timestamp.now(),
-            raf = window.requestAnimationFrame,
-            that = this;
-        function loop(now: number): void {
+        var running,
+            lastFrame = timestamp.now(),
+            raf = window.requestAnimationFrame;
+
+        var loop = (now: number): void => {
             if (running !== false) {
                 raf(loop);
                 var elapsed = Math.min(1000, now - lastFrame);
 
                 if (speed <= 0 || elapsed > speed) {
                     lastFrame = now - (elapsed % speed);
-                    running = render.bind(that)(elapsed);
+                    running = render(elapsed);
                 }
             }
         }
 
         loop(lastFrame);
     }
+
     engine: Engine.Frame;
     __onTouchStart: any;
     gameOverScreen: GameOverScreen;

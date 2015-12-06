@@ -1,0 +1,7 @@
+// Place your settings in this file to overwrite default and user settings.
+{
+	// Control whether tslint is enabled for TypeScript files or not.
+	"tslint.enable": true,
+	// The path to the rules configuration file
+	"tslint.configFile": "tslint.json"
+}

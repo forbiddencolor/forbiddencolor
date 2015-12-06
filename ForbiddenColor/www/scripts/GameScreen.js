@@ -3,7 +3,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-define(["require", "exports", "Screen", "GameOverScreen", "ScreenManager", "timestamp"], function (require, exports, Screen_1, GameOverScreen_1, ScreenManager, timestamp) {
+define(["require", "exports", "Screen", "GameOverScreen", "timestamp"], function (require, exports, Screen_1, GameOverScreen_1, timestamp) {
     "use strict";
     var GameScreen = (function (_super) {
         __extends(GameScreen, _super);
@@ -16,7 +16,6 @@ define(["require", "exports", "Screen", "GameOverScreen", "ScreenManager", "time
             this.shouldRenderRipples = false;
             this.shouldRenderTouches = false;
             this.popupmesssagedelay = 750;
-            ScreenManager.addScreen("gamescreen", this);
             this.engine = engine;
             this.gameOverScreen = new GameOverScreen_1.GameOverScreen(engine);
             this.engine.TimeBonus.on(function (e) { return _this.onTimeBonus(e); });
@@ -222,17 +221,17 @@ define(["require", "exports", "Screen", "GameOverScreen", "ScreenManager", "time
         };
         GameScreen.prototype.animLoop = function (render, speed) {
             if (speed === void 0) { speed = (1000 / 30); }
-            var running, lastFrame = timestamp.now(), raf = window.requestAnimationFrame, that = this;
-            function loop(now) {
+            var running, lastFrame = timestamp.now(), raf = window.requestAnimationFrame;
+            var loop = function (now) {
                 if (running !== false) {
                     raf(loop);
                     var elapsed = Math.min(1000, now - lastFrame);
                     if (speed <= 0 || elapsed > speed) {
                         lastFrame = now - (elapsed % speed);
-                        running = render.bind(that)(elapsed);
+                        running = render(elapsed);
                     }
                 }
-            }
+            };
             loop(lastFrame);
         };
         return GameScreen;

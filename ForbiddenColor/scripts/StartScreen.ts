@@ -45,7 +45,7 @@ export class StartScreen extends Screen {
 
     private updateHighScores(): void {
         this.highScores.removeAll();
-        scores.getHighScores().forEach(e=> this.highScores.push(e));
+        scores.getHighScores().forEach(e => this.highScores.push(e));
     }
 
     engine: Frame;

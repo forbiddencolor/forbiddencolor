@@ -1,8 +1,9 @@
-define(["require", "exports", "jquery"], function (require, exports, $) {
+define(["require", "exports", "jquery", "ScreenManager"], function (require, exports, $, ScreenManager) {
     "use strict";
     var Screen = (function () {
         function Screen(id) {
             this.Id = id;
+            ScreenManager.addScreen(id, this);
         }
         Screen.prototype.show = function () {
             $("#" + this.Id).show();
