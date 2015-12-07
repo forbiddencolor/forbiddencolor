@@ -71,7 +71,7 @@
         </div>
         <div class="form" data-bind="visible: isHighScore">
             <span>Your name:</span>
-            <input type="text" data-bind="value: name" id="name" maxlength="5" />
+            <input type="text" data-bind="value: name" id="name" maxlength="5" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
             <button type="button" data-bind="click: saveScore"><span>Add</span></button>
         </div>
     </div>

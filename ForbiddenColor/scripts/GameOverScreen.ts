@@ -24,7 +24,7 @@ export class GameOverScreen extends Screen {
         this.updateHighScores();
         ko.applyBindings(this, $("#gameoverscreen")[0]);
 
-        $("#name").on("keypress", function (e): void {
+        $("#name").on("keydown", function (e): boolean {
             //list of functional/control keys that you want to allow always
             var keys = [8, 9, 16, 17, 18, 19, 20, 27, 33, 34, 35, 36, 37, 38, 39, 40, 45, 46, 144, 145];
 
@@ -32,8 +32,11 @@ export class GameOverScreen extends Screen {
                 if ($(this).val().length >= scores.maxNameLength) {
                     e.preventDefault();
                     e.stopPropagation();
+                    return false;
                 }
             }
+
+            return true;
         });
     }
 

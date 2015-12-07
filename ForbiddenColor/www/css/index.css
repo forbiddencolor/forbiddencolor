@@ -13,6 +13,8 @@
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+    /* prevent dragging */
+    -webkit-user-drag: none;
 }
 
 span {
@@ -43,6 +45,7 @@ input[type="text"] {
         -webkit-box-shadow: none !important;
         box-shadow: none !important;
         outline: none;
+        text-decoration: none;
     }
 
 input::-webkit-input-placeholder {
@@ -146,9 +149,9 @@ html, body {
     float: left;
 }
 
-    #countdown > span {
-        font-size: 2em;
-    }
+#countdown > span {
+    font-size: 2em;
+}
 
 #currentforbiddencolor {
     display: none;
@@ -241,7 +244,7 @@ button:focus {
 
     .ripple.show {
         -webkit-animation: ripple .5s ease-out;
-        -moz-animation: ripple .5s ease-out;        
+        -moz-animation: ripple .5s ease-out;
         -o-animation: ripple .5s ease-out;
         animation: ripple .5s ease-out;
     }
