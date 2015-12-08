@@ -13,6 +13,14 @@ define(["require", "exports", "Screen", "GameOverScreen", "timestamp"], function
             this.currentRipple = [];
             this.popupMessageCount = 0;
             this.lastScoreTime = +new Date;
+            this.$body = $("body");
+            this.$forbiddencolor = $("#forbiddencolor");
+            this.$score = $("#score > span");
+            this.$timebonus = $("#timebonus");
+            this.$oops = $("#oops");
+            this.$timer = $("#timer > span");
+            this.$countdown = $("#countdown");
+            this.$plusscore = $("#plusscore");
             this.shouldRenderRipples = false;
             this.shouldRenderTouches = false;
             this.popupmesssagedelay = 750;
@@ -24,13 +32,14 @@ define(["require", "exports", "Screen", "GameOverScreen", "timestamp"], function
             this.engine.GameEnded.on(function (e) { return _this.onGameEnded(e); });
             this.engine.TimerUpdated.on(function (e) { return _this.onTimerUpdated(e); });
             this.engine.CountDownUpdated.on(function (e) { return _this.onCountDownUpdated(e); });
+            this.$body = $("body");
             // ko.applyBindings(this, $("#gamescreen")[0]);
         }
         GameScreen.prototype.show = function () {
-            $("body").css("background-color", this.engine.CurrentColor.color);
+            this.$body.css("background-color", this.engine.CurrentColor.color);
             _super.prototype.show.call(this);
             this.__onTouchStart = this.onTouchStart.bind(this);
-            $("body").on("touchstart", this.__onTouchStart);
+            this.$body.on("touchstart", this.__onTouchStart);
             this.engine.start();
             this.resetRipples();
             if (this.shouldRenderRipples) {
@@ -38,49 +47,50 @@ define(["require", "exports", "Screen", "GameOverScreen", "timestamp"], function
             }
         };
         GameScreen.prototype.hide = function () {
-            $("body").off("touchstart", this.__onTouchStart);
+            this.$body.off("touchstart", this.__onTouchStart);
             _super.prototype.hide.call(this);
         };
         GameScreen.prototype.onTimerUpdated = function (e) {
             if (this.engine.TimeLeft < 3) {
-                $("#timer > span").text(this.engine.TimeLeft.toFixed(1));
+                this.$timer.text(this.engine.TimeLeft.toFixed(1));
             }
             else {
-                $("#timer > span").text(this.engine.TimeLeft.toFixed(0));
+                this.$timer.text(this.engine.TimeLeft.toFixed(0));
             }
         };
         GameScreen.prototype.onGameEnded = function (e) {
-            $("#score > span").text(this.engine.Score.toString());
-            $("#timer > span").text(this.engine.TimeLeft.toString());
+            this.$score.text(this.engine.Score.toString());
+            this.$timer.text(this.engine.TimeLeft.toString());
             this.hide();
             this.gameOverScreen.score(e.Score);
             this.gameOverScreen.show();
         };
         GameScreen.prototype.onGameStarted = function (e) {
-            $("#score > span").text(this.engine.Score.toString());
-            $("#timer > span").text(this.engine.TimeLeft.toString());
-            $("body").css("background-color", this.engine.CurrentColor.color);
+            this.$score.text(this.engine.Score.toString());
+            this.$timer.text(this.engine.TimeLeft.toString());
+            this.$body.css("background-color", this.engine.CurrentColor.color);
             $("#startscreen").hide();
-            $("#currentforbiddencolor").html("" + this.engine.CurrentColor.name);
+            $("#currentforbiddencolor").html(this.engine.CurrentColor.name);
         };
         GameScreen.prototype.onCountDownUpdated = function (e) {
+            var _this = this;
             if (e.CountDown > 0) {
-                $("#forbiddencolor > span").html("Forbidden color<br />" + this.engine.CurrentColor.name);
-                $("#forbiddencolor").removeClass("animated fadeOut");
-                $("#forbiddencolor").show();
+                this.$forbiddencolor.find("> span").html("Forbidden color<br />" + this.engine.CurrentColor.name);
+                this.$forbiddencolor.removeClass("animated fadeOut");
+                this.$forbiddencolor.show();
             }
             else {
-                $("#forbiddencolor").addClass("animated fadeOut");
+                this.$forbiddencolor.addClass("animated fadeOut");
                 this.resetRipples();
             }
             var text = e.CountDown === 0 ? "Go" : e.CountDown.toString();
-            $("#countdown > span").text(text);
-            $("#countdown").css("display", "block");
-            $("#countdown").addClass("animated bounceIn");
+            this.$countdown.find("> span").text(text);
+            this.$countdown.css("display", "block");
+            this.$countdown.addClass("animated bounceIn");
             setTimeout(function () {
-                $("#countdown").css("display", "none");
+                _this.$countdown.css("display", "none");
             }, this.popupmesssagedelay);
-            $("body").css("background-color", this.engine.CurrentColor.color);
+            this.$body.css("background-color", this.engine.CurrentColor.color);
         };
         GameScreen.prototype.onNextFrame = function (e) {
             var _this = this;
@@ -89,9 +99,8 @@ define(["require", "exports", "Screen", "GameOverScreen", "timestamp"], function
                 var delta = now - this.lastScoreTime;
                 if (delta > 180) {
                     this.lastScoreTime = now;
-                    var score = $("<div class=\"plusscore popupmessage\" style=\"display: block\"><span></span></div>");
-                    $("> span", score).text("+1");
-                    $("#plusscore").append(score);
+                    var score = $("<div class=\"plusscore popupmessage\" style=\"display: block\"><span>+1</span></div>");
+                    this.$plusscore.append(score);
                     score.addClass("animated fadeOutDown");
                     score.one("webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend", function () {
                         score.remove();
@@ -101,10 +110,8 @@ define(["require", "exports", "Screen", "GameOverScreen", "timestamp"], function
             else {
                 if (this.popupMessageCount < 3) {
                     this.popupMessageCount++;
-                    var $oops = $("#oops");
-                    var msg = $("<div class=\"oops popupmessage\" style=\"display: block\"><span></span></div>");
-                    $("> span", msg).text("OOPS");
-                    $oops.append(msg);
+                    var msg = $("<div class=\"oops popupmessage\" style=\"display: block\"><span>OOPS</span></div>");
+                    this.$oops.append(msg);
                     msg.addClass("animated bounceIn");
                     msg.one("webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend", function () {
                         msg.remove();
@@ -112,16 +119,17 @@ define(["require", "exports", "Screen", "GameOverScreen", "timestamp"], function
                     });
                 }
             }
-            $("#score > span").text(this.engine.Score.toString());
-            $("body").css("background-color", this.engine.CurrentColor.color);
+            this.$score.text(this.engine.Score.toString());
+            this.$body.css("background-color", this.engine.CurrentColor.color);
         };
         GameScreen.prototype.onTimeBonus = function (e) {
-            $("#timebonus .message > span").text("+" + e.ExtraTime);
-            $("#timebonus").removeClass("animated bounceIn");
-            $("#timebonus").css("display", "block");
-            $("#timebonus").addClass("animated bounceIn");
+            var _this = this;
+            this.$timebonus.find(".message > span").text("+" + e.ExtraTime);
+            this.$timebonus.removeClass("animated bounceIn");
+            this.$timebonus.css("display", "block");
+            this.$timebonus.addClass("animated bounceIn");
             setTimeout(function () {
-                $("#timebonus").css("display", "none");
+                _this.$timebonus.css("display", "none");
             }, this.popupmesssagedelay);
         };
         GameScreen.prototype.onTouchStart = function (e) {
@@ -133,7 +141,7 @@ define(["require", "exports", "Screen", "GameOverScreen", "timestamp"], function
             }
             var touchStart = e.originalEvent.touches[0], startX = touchStart.pageX, startY = touchStart.pageY, lastX = startX, lastY = startY, touchStartTime = new Date().getTime(), lastMoveTime = touchStartTime;
             function removeTouchHandler() {
-                $("body").off("touchmove", moveHandler).off("touchend", endHandler);
+                that.$body.off("touchmove", moveHandler).off("touchend", endHandler);
             }
             ;
             function endHandler(endEvent) {
@@ -169,14 +177,14 @@ define(["require", "exports", "Screen", "GameOverScreen", "timestamp"], function
             }
             that.waterRipple(lastX, lastY);
             that.showTouch(lastX, lastY);
-            $("body").on("touchmove", moveHandler).on("touchend", endHandler);
+            this.$body.on("touchmove", moveHandler).on("touchend", endHandler);
             return true;
         };
         GameScreen.prototype.showTouch = function (pageX, pageY) {
             if (!this.shouldRenderTouches) {
                 return;
             }
-            var target = $("#page");
+            var target = this.$body;
             var ink = $("<div class='ripple'></div>");
             //if (target.find(".ink").length === 0)
             //    target.append(ink);
@@ -198,8 +206,8 @@ define(["require", "exports", "Screen", "GameOverScreen", "timestamp"], function
             if (!this.shouldRenderRipples) {
                 return;
             }
-            $("body").ripples("destroy");
-            $("body").ripples({
+            this.$body.ripples("destroy");
+            this.$body.ripples({
                 resolution: 512,
                 interactive: false
             });
@@ -208,7 +216,7 @@ define(["require", "exports", "Screen", "GameOverScreen", "timestamp"], function
             if (this.currentRipple.length > 0) {
                 var ripple = this.currentRipple.pop();
                 this.currentRipple = [];
-                $("body").ripples("drop", ripple.x, ripple.y, ripple.radius, ripple.strength);
+                this.$body.ripples("drop", ripple.x, ripple.y, ripple.radius, ripple.strength);
             }
         };
         GameScreen.prototype.waterRipple = function (x, y, radius, strength) {

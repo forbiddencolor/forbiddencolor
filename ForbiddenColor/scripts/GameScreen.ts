@@ -6,9 +6,21 @@ import {GameOverScreen} from "GameOverScreen";
 import * as timestamp from "timestamp";
 
 export class GameScreen extends Screen {
+    private __onTouchStart: any;
+    private engine: Engine.Frame;
+    private gameOverScreen: GameOverScreen;
     private currentRipple = [];
     private popupMessageCount = 0;
     private lastScoreTime = +new Date;
+
+    private $body = $("body");
+    private $forbiddencolor = $("#forbiddencolor");
+    private $score = $("#score > span");
+    private $timebonus = $("#timebonus");
+    private $oops = $("#oops");
+    private $timer = $("#timer > span");
+    private $countdown = $("#countdown");
+    private $plusscore = $("#plusscore");
 
     public shouldRenderRipples = false;
     public shouldRenderTouches = false;
@@ -26,15 +38,15 @@ export class GameScreen extends Screen {
         this.engine.GameEnded.on(e => this.onGameEnded(e));
         this.engine.TimerUpdated.on(e => this.onTimerUpdated(e));
         this.engine.CountDownUpdated.on(e => this.onCountDownUpdated(e));
-
+        
         // ko.applyBindings(this, $("#gamescreen")[0]);
     }
 
     public show(): void {
-        $("body").css("background-color", this.engine.CurrentColor.color);
+        this.$body.css("background-color", this.engine.CurrentColor.color);
         super.show();
         this.__onTouchStart = this.onTouchStart.bind(this);
-        $("body").on("touchstart", this.__onTouchStart);
+        this.$body.on("touchstart", this.__onTouchStart);
         this.engine.start();
 
         this.resetRipples();
@@ -44,54 +56,54 @@ export class GameScreen extends Screen {
     }
 
     public hide(): void {
-        $("body").off("touchstart", this.__onTouchStart);
+        this.$body.off("touchstart", this.__onTouchStart);
         super.hide();
     }
 
     private onTimerUpdated(e: Engine.TimerUpdatedEventArgs): void {
         if (this.engine.TimeLeft < 3) {
-            $("#timer > span").text(this.engine.TimeLeft.toFixed(1));
+            this.$timer.text(this.engine.TimeLeft.toFixed(1));
         } else {
-            $("#timer > span").text(this.engine.TimeLeft.toFixed(0));
+            this.$timer.text(this.engine.TimeLeft.toFixed(0));
         }
     }
 
     private onGameEnded(e: Engine.GameEndedEventArgs): void {
-        $("#score > span").text(this.engine.Score.toString());
-        $("#timer > span").text(this.engine.TimeLeft.toString());
+        this.$score.text(this.engine.Score.toString());
+        this.$timer.text(this.engine.TimeLeft.toString());
         this.hide();
         this.gameOverScreen.score(e.Score);
         this.gameOverScreen.show();
     }
 
     private onGameStarted(e: Engine.GameStartedEventArgs): void {
-        $("#score > span").text(this.engine.Score.toString());
-        $("#timer > span").text(this.engine.TimeLeft.toString());
-        $("body").css("background-color", this.engine.CurrentColor.color);
+        this.$score.text(this.engine.Score.toString());
+        this.$timer.text(this.engine.TimeLeft.toString());
+        this.$body.css("background-color", this.engine.CurrentColor.color);
         $("#startscreen").hide();
-        $("#currentforbiddencolor").html("" + this.engine.CurrentColor.name);
+        $("#currentforbiddencolor").html(this.engine.CurrentColor.name);
     }
 
     private onCountDownUpdated(e: Engine.CountDownEventArgs): void {
         if (e.CountDown > 0) {
-            $("#forbiddencolor > span").html("Forbidden color<br />" + this.engine.CurrentColor.name);
-            $("#forbiddencolor").removeClass("animated fadeOut");
-            $("#forbiddencolor").show();
+            this.$forbiddencolor.find("> span").html("Forbidden color<br />" + this.engine.CurrentColor.name);
+            this.$forbiddencolor.removeClass("animated fadeOut");
+            this.$forbiddencolor.show();
         } else {
-            $("#forbiddencolor").addClass("animated fadeOut");
+            this.$forbiddencolor.addClass("animated fadeOut");
             this.resetRipples();
         }
 
         var text = e.CountDown === 0 ? "Go" : e.CountDown.toString();
 
-        $("#countdown > span").text(text);
-        $("#countdown").css("display", "block");
-        $("#countdown").addClass("animated bounceIn");
+        this.$countdown.find("> span").text(text);
+        this.$countdown.css("display", "block");
+        this.$countdown.addClass("animated bounceIn");
         setTimeout(() => {
-            $("#countdown").css("display", "none");
+            this.$countdown.css("display", "none");
         }, this.popupmesssagedelay);
 
-        $("body").css("background-color", this.engine.CurrentColor.color);
+        this.$body.css("background-color", this.engine.CurrentColor.color);
     }
 
     private onNextFrame(e: Engine.NextFrameEventArgs): void {
@@ -100,9 +112,8 @@ export class GameScreen extends Screen {
             var delta = now - this.lastScoreTime;
             if (delta > 180) {
                 this.lastScoreTime = now;
-                var score = $("<div class=\"plusscore popupmessage\" style=\"display: block\"><span></span></div>");
-                $("> span", score).text("+1");
-                $("#plusscore").append(score);
+                var score = $("<div class=\"plusscore popupmessage\" style=\"display: block\"><span>+1</span></div>");
+                this.$plusscore.append(score);
                 score.addClass("animated fadeOutDown");
                 score.one("webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend", () => {
                     score.remove();
@@ -111,10 +122,8 @@ export class GameScreen extends Screen {
         } else {
             if (this.popupMessageCount < 3) {
                 this.popupMessageCount++;
-                var $oops = $("#oops");
-                var msg = $("<div class=\"oops popupmessage\" style=\"display: block\"><span></span></div>");
-                $("> span", msg).text("OOPS");
-                $oops.append(msg);
+                var msg = $("<div class=\"oops popupmessage\" style=\"display: block\"><span>OOPS</span></div>");
+                this.$oops.append(msg);
                 msg.addClass("animated bounceIn");
                 msg.one("webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend", () => {
                     msg.remove();
@@ -123,18 +132,18 @@ export class GameScreen extends Screen {
             }
         }
 
-        $("#score > span").text(this.engine.Score.toString());
-        $("body").css("background-color", this.engine.CurrentColor.color);
+        this.$score.text(this.engine.Score.toString());
+        this.$body.css("background-color", this.engine.CurrentColor.color);
     }
 
     private onTimeBonus(e: Engine.TimeBonusEventArgs): void {
-        $("#timebonus .message > span").text("+" + e.ExtraTime);
+        this.$timebonus.find(".message > span").text("+" + e.ExtraTime);
 
-        $("#timebonus").removeClass("animated bounceIn");
-        $("#timebonus").css("display", "block");
-        $("#timebonus").addClass("animated bounceIn");
+        this.$timebonus.removeClass("animated bounceIn");
+        this.$timebonus.css("display", "block");
+        this.$timebonus.addClass("animated bounceIn");
         setTimeout(() => {
-            $("#timebonus").css("display", "none");
+            this.$timebonus.css("display", "none");
         }, this.popupmesssagedelay);
     }
 
@@ -158,7 +167,7 @@ export class GameScreen extends Screen {
             lastMoveTime = touchStartTime;
 
         function removeTouchHandler(): void {
-            $("body").off("touchmove", moveHandler).off("touchend", endHandler);
+            that.$body.off("touchmove", moveHandler).off("touchend", endHandler);
         };
 
         function endHandler(endEvent): boolean {
@@ -207,7 +216,7 @@ export class GameScreen extends Screen {
 
         that.waterRipple(lastX, lastY);
         that.showTouch(lastX, lastY);
-        $("body").on("touchmove", moveHandler).on("touchend", endHandler);
+        this.$body.on("touchmove", moveHandler).on("touchend", endHandler);
         return true;
     }
 
@@ -216,7 +225,7 @@ export class GameScreen extends Screen {
             return;
         }
 
-        var target = $("#page");
+        var target = this.$body;
         var ink = $("<div class='ripple'></div>");
         //if (target.find(".ink").length === 0)
         //    target.append(ink);
@@ -231,7 +240,7 @@ export class GameScreen extends Screen {
         var x = pageX - target.offset().left - ink.width() / 2;
         var y = pageY - target.offset().top - ink.height() / 2;
 
-        ink.one("animationend webkitAnimationEnd oAnimationEnd MSAnimationEnd", function(): void {
+        ink.one("animationend webkitAnimationEnd oAnimationEnd MSAnimationEnd", function (): void {
             $(this).remove();
         });
 
@@ -245,9 +254,9 @@ export class GameScreen extends Screen {
             return;
         }
 
-        $("body").ripples("destroy");
+        this.$body.ripples("destroy");
 
-        $("body").ripples({
+        this.$body.ripples({
             resolution: 512,
             interactive: false
         });
@@ -258,7 +267,7 @@ export class GameScreen extends Screen {
         if (this.currentRipple.length > 0) {
             var ripple = this.currentRipple.pop();
             this.currentRipple = [];
-            $("body").ripples("drop", ripple.x, ripple.y, ripple.radius, ripple.strength);
+            this.$body.ripples("drop", ripple.x, ripple.y, ripple.radius, ripple.strength);
         }
     }
 
@@ -285,12 +294,8 @@ export class GameScreen extends Screen {
                     running = render(elapsed);
                 }
             }
-        }
+        };
 
         loop(lastFrame);
     }
-
-    engine: Engine.Frame;
-    __onTouchStart: any;
-    gameOverScreen: GameOverScreen;
 }

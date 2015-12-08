@@ -11,6 +11,6 @@
   },
   "scripts": {
     "build": "tsc -p .\\scripts | taco build",
-    "serve": "tsc -p .\\scripts | taco run"
+    "serve": "tsc -p .\\scripts | taco run --emulate"
   }
 }

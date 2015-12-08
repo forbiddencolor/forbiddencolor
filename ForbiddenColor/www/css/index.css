@@ -1,20 +1,11 @@
-﻿* {
-    /* prevent callout when holding tap on links (the native dialog that comes up) */
-    -webkit-touch-callout: none;
-    /* prevent webkit from resizing text to fit */
-    -webkit-text-size-adjust: none;
-    -ms-text-size-adjust: none;
-    -moz-text-size-adjust: none;
-    text-size-adjust: none;
-    /* make transparent link selection, adjust last value opacity 0 to 1.0 */
-    -webkit-tap-highlight-color: rgba(0,0,0,0);
-    /* prevent copy paste, to allow, change 'none' to 'text' */
+﻿*:not(input):not(textarea) {
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
-    /* prevent dragging */
+    -webkit-touch-callout: none;
     -webkit-user-drag: none;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 
 span {
@@ -72,10 +63,6 @@ button {
 }
 
 html, body {
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
     height: 100%;
     width: 100%;
     margin: 0;
