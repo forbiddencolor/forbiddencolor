@@ -1,4 +1,5 @@
-﻿/// <reference path="typings/knockout/knockout.d.ts" />
+﻿/// <reference path="typings/jquery/jquery.d.ts" />
+/// <reference path="typings/knockout/knockout.d.ts" />
 
 "use strict";
 
@@ -7,6 +8,7 @@ import {Screen} from "Screen";
 import * as Scores from "HighScores";
 import * as ScreenManager from "ScreenManager";
 import * as ko from "knockout";
+import * as $ from "jquery";
 
 var scores = new Scores.HighScoreStorage();
 

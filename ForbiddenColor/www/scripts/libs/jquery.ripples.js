@@ -9,6 +9,10 @@
     var gl;
     var $window = $(window); // There is only one window, so why not cache the jQuery-wrapped window?
 
+    function timestamp() {
+        return window.performance && window.performance.now ? window.performance.now() : +new Date;
+    }
+
     function isPercentage(str) {
         return str[str.length - 1] === '%';
     }
@@ -50,7 +54,7 @@
         gl.enableVertexAttribArray(0);
         var name, regex = /uniform (\w+) (\w+)/g, shaderCode = vertexSource + fragmentSource;
         var match;
-        while ((match = regex.exec(shaderCode)) != null) {
+        while ((match = regex.exec(shaderCode)) !== null) {
             name = match[2];
             program.locations[name] = gl.getUniformLocation(program.id, name);
         }
@@ -78,7 +82,7 @@
         // If this element doesn't have a background image, don't apply this effect to it
         var backgroundUrl = (/url\(["']?([^"']*)["']?\)/.exec(this.$el.css('background-image')));
         var backgroundColor = this.$el.css('background-color');
-        if (backgroundUrl != null) {
+        if (backgroundUrl !== null) {
             backgroundUrl = backgroundUrl[1];
         }
 
@@ -88,6 +92,7 @@
 
         this.perturbance = options.perturbance;
         this.dropRadius = options.dropRadius;
+        this.framerate = options.framerate;
 
         var canvas = document.createElement('canvas');
         canvas.width = this.$el.innerWidth();
@@ -219,25 +224,33 @@
         gl.clearColor(0, 0, 0, 0);
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
+        var lastFrame = timestamp(),
+            speed = 1000 / that.framerate;
+
         // Init animation
-        function step() {
-            that.step();
+        function step(now) {
             requestAnimationFrame(step);
+            var elapsed = Math.min(1000, now - lastFrame);
+            if (that.framerate <= 0 || elapsed > speed) {
+                lastFrame = now - (elapsed % speed);
+                that.step(elapsed);
+            }
         }
 
-        requestAnimationFrame(step);
+        step(timestamp());
     };
 
     Ripples.DEFAULTS = {
         resolution: 256,
         dropRadius: 20,
         perturbance: 0.03,
-        interactive: true
+        interactive: true,
+        framerate: 30
     };
 
     Ripples.prototype = {
 
-        step: function () {
+        step: function (delta) {
             gl = this.context;
 
             if (!this.visible || !this.backgroundTexture) return;
@@ -257,7 +270,7 @@
             gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
         },
 
-        render: function () {
+        render: function (delta) {
             gl.viewport(0, 0, this.canvas.width, this.canvas.height);
 
             gl.enable(gl.BLEND);
@@ -278,7 +291,7 @@
             gl.disable(gl.BLEND);
         },
 
-        update: function () {
+        update: function (delta) {
             gl.viewport(0, 0, this.resolution, this.resolution);
 
             for (var i = 0; i < 2; i++) {
@@ -595,11 +608,11 @@
         return this.each(function () {
             var $this = $(this);
             var data = $this.data('ripples');
-            var options = $.extend({}, Ripples.DEFAULTS, $this.data(), typeof option == 'object' && option);
+            var options = $.extend({}, Ripples.DEFAULTS, $this.data(), typeof option === 'object' && option);
 
-            if (!data && typeof option == 'string') return;
+            if (!data && typeof option === 'string') return;
             if (!data) $this.data('ripples', (data = new Ripples(this, options)));
-            else if (typeof option == 'string') Ripples.prototype[option].apply(data, args);
+            else if (typeof option === 'string') Ripples.prototype[option].apply(data, args);
         });
     }
 

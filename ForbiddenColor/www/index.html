@@ -9,29 +9,28 @@
     <link href="css/animate.min.css" rel="stylesheet" />
     <link href="css/index.css" rel="stylesheet" />
 </head>
-<body>
+<body id="body">
+    <!--<div id="container"></div>-->
     <div class="page" id="startscreen">
-        <div id="welcome">
-            <div class="howtoplay">
-                <span>Swipe the forbidden color<br />Tap all other colors</span>
-            </div>
-            <div class="highscores">
-                <table>
-                    <tbody data-bind="foreach: highScores">
-                        <tr>
-                            <td class="name"><span data-bind="text: name"></span></td>
-                            <td class="score"><span data-bind="text: score"></span></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="startbutton">
-                <button id="startbutton" class="startbutton" style="border: 0; background: transparent">
-                    <span>Go</span>
-                </button>
-            </div>
-            <div class="credits"><span>R&amp;J</span></div>
+        <div class="howtoplay">
+            <span>Swipe the forbidden color<br />Tap all other colors</span>
         </div>
+        <div class="highscores">
+            <table>
+                <tbody data-bind="foreach: highScores">
+                    <tr>
+                        <td class="name"><span data-bind="text: name"></span></td>
+                        <td class="score"><span data-bind="text: score"></span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="startbutton">
+            <button id="startbutton" class="startbutton" style="border: 0; background: transparent">
+                <span>Go</span>
+            </button>
+        </div>
+        <div class="credits"><span>R&amp;J</span></div>
     </div>
     <div class="page" id="gamescreen">
         <div id="header">

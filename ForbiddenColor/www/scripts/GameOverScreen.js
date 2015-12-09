@@ -1,10 +1,11 @@
+/// <reference path="typings/jquery/jquery.d.ts" />
 /// <reference path="typings/knockout/knockout.d.ts" />
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-define(["require", "exports", "Screen", "HighScores", "ScreenManager", "knockout"], function (require, exports, Screen_1, Scores, ScreenManager, ko) {
+define(["require", "exports", "Screen", "HighScores", "ScreenManager", "knockout", "jquery"], function (require, exports, Screen_1, Scores, ScreenManager, ko, $) {
     "use strict";
     var scores = new Scores.HighScoreStorage();
     var GameOverScreen = (function (_super) {

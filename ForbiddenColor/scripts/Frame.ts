@@ -89,7 +89,7 @@ export class Frame {
         this.CurrentStreak = 0;
         this.CountDown = 0;
         this.Score = 0;
-        this.TimeLeft = 0;
+        this.TimeLeft = 0;        
     }
 
     public start(): void {

@@ -1,9 +1,10 @@
+/// <reference path="typings/jquery/jquery.d.ts" />
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-define(["require", "exports", "Screen", "GameOverScreen", "timestamp"], function (require, exports, Screen_1, GameOverScreen_1, timestamp) {
+define(["require", "exports", "jquery", "Screen", "GameOverScreen", "timestamp"], function (require, exports, $, Screen_1, GameOverScreen_1, timestamp) {
     "use strict";
     var GameScreen = (function (_super) {
         __extends(GameScreen, _super);
@@ -32,7 +33,6 @@ define(["require", "exports", "Screen", "GameOverScreen", "timestamp"], function
             this.engine.GameEnded.on(function (e) { return _this.onGameEnded(e); });
             this.engine.TimerUpdated.on(function (e) { return _this.onTimerUpdated(e); });
             this.engine.CountDownUpdated.on(function (e) { return _this.onCountDownUpdated(e); });
-            this.$body = $("body");
             // ko.applyBindings(this, $("#gamescreen")[0]);
         }
         GameScreen.prototype.show = function () {
@@ -41,8 +41,8 @@ define(["require", "exports", "Screen", "GameOverScreen", "timestamp"], function
             this.__onTouchStart = this.onTouchStart.bind(this);
             this.$body.on("touchstart", this.__onTouchStart);
             this.engine.start();
-            this.resetRipples();
             if (this.shouldRenderRipples) {
+                this.resetRipples();
                 this.animLoop(this.renderRipple);
             }
         };
@@ -166,7 +166,7 @@ define(["require", "exports", "Screen", "GameOverScreen", "timestamp"], function
             function moveHandler(moveEvent) {
                 var touchMove = moveEvent.originalEvent.touches[0], movedX = Math.abs(touchMove.pageX - lastX), movedY = Math.abs(touchMove.pageY - lastY);
                 // timeDiff = new Date().getTime() - lastMoveTime;
-                if (movedX > 60 || movedY > 60) {
+                if (movedX > 30 || movedY > 30) {
                     lastX = touchMove.pageX;
                     lastY = touchMove.pageY;
                     that.waterRipple(lastX, lastY);
@@ -228,6 +228,7 @@ define(["require", "exports", "Screen", "GameOverScreen", "timestamp"], function
             this.currentRipple.push({ x: x, y: y, radius: radius, strength: strength });
         };
         GameScreen.prototype.animLoop = function (render, speed) {
+            var _this = this;
             if (speed === void 0) { speed = (1000 / 30); }
             var running, lastFrame = timestamp.now(), raf = window.requestAnimationFrame;
             var loop = function (now) {
@@ -236,7 +237,7 @@ define(["require", "exports", "Screen", "GameOverScreen", "timestamp"], function
                     var elapsed = Math.min(1000, now - lastFrame);
                     if (speed <= 0 || elapsed > speed) {
                         lastFrame = now - (elapsed % speed);
-                        running = render(elapsed);
+                        running = render.bind(_this)(elapsed);
                     }
                 }
             };

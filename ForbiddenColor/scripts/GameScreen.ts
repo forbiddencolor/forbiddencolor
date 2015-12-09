@@ -1,5 +1,8 @@
-﻿"use strict";
+﻿/// <reference path="typings/jquery/jquery.d.ts" />
 
+"use strict";
+
+import * as $ from "jquery";
 import * as Engine from "Frame";
 import {Screen} from "Screen";
 import {GameOverScreen} from "GameOverScreen";
@@ -49,8 +52,8 @@ export class GameScreen extends Screen {
         this.$body.on("touchstart", this.__onTouchStart);
         this.engine.start();
 
-        this.resetRipples();
         if (this.shouldRenderRipples) {
+            this.resetRipples();
             this.animLoop(this.renderRipple);
         }
     }
@@ -201,7 +204,7 @@ export class GameScreen extends Screen {
                 movedY = Math.abs(touchMove.pageY - lastY);
             // timeDiff = new Date().getTime() - lastMoveTime;
 
-            if (movedX > 60 || movedY > 60) {
+            if (movedX > 30 || movedY > 30) {
                 lastX = touchMove.pageX;
                 lastY = touchMove.pageY;
 
@@ -291,7 +294,7 @@ export class GameScreen extends Screen {
 
                 if (speed <= 0 || elapsed > speed) {
                     lastFrame = now - (elapsed % speed);
-                    running = render(elapsed);
+                    running = render.bind(this)(elapsed);
                 }
             }
         };
