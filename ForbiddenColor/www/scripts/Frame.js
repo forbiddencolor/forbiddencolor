@@ -111,7 +111,7 @@ define(["require", "exports", "LiteEvents", "timestamp"], function (require, exp
             this.TimeLeft = 10;
             this.ForbiddenColor = this.pickColor();
             this.CurrentColor = this.ForbiddenColor;
-            this.CountDown = 2;
+            this.CountDown = 3;
             if (this._countdownInterval) {
                 clearInterval(this._countdownInterval);
             }
@@ -168,7 +168,7 @@ define(["require", "exports", "LiteEvents", "timestamp"], function (require, exp
         Frame.prototype.success = function () {
             this.Score++;
             this.CurrentStreak++;
-            if (this.CurrentStreak % 5 === 0) {
+            if (this.TimeLeft <= 9 && this.CurrentStreak % 5 === 0) {
                 this.TimeLeft += 1;
                 this.onTimeBonus.trigger(new TimeBonusEventArgs(1));
             }

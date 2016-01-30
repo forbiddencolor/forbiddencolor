@@ -89,7 +89,7 @@ export class Frame {
         this.CurrentStreak = 0;
         this.CountDown = 0;
         this.Score = 0;
-        this.TimeLeft = 0;        
+        this.TimeLeft = 0;
     }
 
     public start(): void {
@@ -104,7 +104,7 @@ export class Frame {
         this.ForbiddenColor = this.pickColor();
         this.CurrentColor = this.ForbiddenColor;
 
-        this.CountDown = 2;
+        this.CountDown = 3;
 
         if (this._countdownInterval) {
             clearInterval(this._countdownInterval);
@@ -169,7 +169,7 @@ export class Frame {
         this.Score++;
         this.CurrentStreak++;
 
-        if (this.CurrentStreak % 5 === 0) {
+        if (this.TimeLeft <= 9 && this.CurrentStreak % 5 === 0) {
             this.TimeLeft += 1;
             this.onTimeBonus.trigger(new TimeBonusEventArgs(1));
         }

@@ -85,14 +85,15 @@ export class GameScreen extends Screen {
         this.$body.css("background-color", this.engine.CurrentColor.color);
         $("#startscreen").hide();
         $("#currentforbiddencolor").html(this.engine.CurrentColor.name);
+        this.$oops.empty();
+        this.$plusscore.empty();
+        this.$forbiddencolor.find("> span").html("Forbidden color<br />" + this.engine.CurrentColor.name);
+        this.$forbiddencolor.removeClass("animated fadeOut");
+        this.$forbiddencolor.show();
     }
 
     private onCountDownUpdated(e: Engine.CountDownEventArgs): void {
-        if (e.CountDown > 0) {
-            this.$forbiddencolor.find("> span").html("Forbidden color<br />" + this.engine.CurrentColor.name);
-            this.$forbiddencolor.removeClass("animated fadeOut");
-            this.$forbiddencolor.show();
-        } else {
+        if (e.CountDown <= 1) {
             this.$forbiddencolor.addClass("animated fadeOut");
             this.resetRipples();
         }
