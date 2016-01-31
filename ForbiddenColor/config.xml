@@ -13,14 +13,8 @@
   <preference name="KeepRunning" value="True" />
   <preference name="InAppBrowserStorageEnabled" value="True" />
   <preference name="SuppressesIncrementalRendering" value="False" />
-  <preference name="android-minSdkVersion" value="19" />
-  <platform name="android">
-    <allow-intent href="market:*" />
-  </platform>
-  <platform name="ios">
-    <allow-intent href="itms:*" />
-    <allow-intent href="itms-apps:*" />
-  </platform>
+  <preference name="android-minSdkVersion" value="14" />
+  <preference name="permissions" value="none"/>
   <platform name="android">
     <icon src="res/icons/android/icon-36-ldpi.png" density="ldpi" />
     <icon src="res/icons/android/icon-48-mdpi.png" density="mdpi" />
