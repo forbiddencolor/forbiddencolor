@@ -33,6 +33,16 @@ export class HighScoreStorage {
         return scores.sort(this.sort);
     }
 
+    public getNewHighScores(name: string, score: number, longestStreak: number = 0): HighScore[] {
+        var hs = this.getHighScores();
+        var newhs = new HighScore();
+        newhs.name = name;
+        newhs.score = score;
+        newhs.longestStreak = longestStreak;
+        hs.push(newhs);
+        return hs.sort(this.sort).slice(0, this.maxEntries);
+    }
+
     public isHighScore(score: number): boolean {
         var highScores = this.getHighScores();
         var lowest = highScores[highScores.length - 1];

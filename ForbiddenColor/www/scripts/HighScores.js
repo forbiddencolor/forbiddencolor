@@ -29,6 +29,16 @@ define(["require", "exports"], function (require, exports) {
             }
             return scores.sort(this.sort);
         };
+        HighScoreStorage.prototype.getNewHighScores = function (name, score, longestStreak) {
+            if (longestStreak === void 0) { longestStreak = 0; }
+            var hs = this.getHighScores();
+            var newhs = new HighScore();
+            newhs.name = name;
+            newhs.score = score;
+            newhs.longestStreak = longestStreak;
+            hs.push(newhs);
+            return hs.sort(this.sort).slice(0, this.maxEntries);
+        };
         HighScoreStorage.prototype.isHighScore = function (score) {
             var highScores = this.getHighScores();
             var lowest = highScores[highScores.length - 1];

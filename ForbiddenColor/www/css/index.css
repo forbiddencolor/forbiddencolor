@@ -174,11 +174,11 @@ footer {
     padding: 0 0 0 10px;
 }
 
-.howtoplay em {
-    text-decoration: none;
-    font-size: 1.2em;
-    font-style: normal;
-}
+    .howtoplay em {
+        text-decoration: none;
+        font-size: 1.2em;
+        font-style: normal;
+    }
 
 div.startbutton {
     bottom: 10%;
@@ -293,7 +293,7 @@ button:focus {
         margin: 0 auto;
     }
 
-        .highscores table .score {
+        .highscores table td.score {
             text-align: right;
         }
 
@@ -301,37 +301,40 @@ button:focus {
             text-align: left;
         }
 
+#gameoverscreen .newhighscore,
 #gameoverscreen .gameover {
     position: absolute;
-    top: 35%;
+    top: 3%;
     margin: 0 auto;
     text-align: center;
     width: 100%;
-}
-
-#gameoverscreen .score {
-    position: absolute;
-    top: 65%;
-    margin: 0 auto;
-    text-align: center;
-    width: 100%;
-}
-
-#gameoverscreen .yourscore {
     font-size: 2.5em;
+}
+
+#gameoverscreen .newhighscore {
+}
+
+#gameoverscreen .ishighscore .yourscore {
+    font-size: 2.0em;
     position: absolute;
-    top: 55%;
+    top: 10%;
     margin: 0 auto;
     text-align: center;
     width: 100%;
 }
 
-#gameoverscreen .gameover span {
-    font-size: 3em;
+#gameoverscreen .highscores {
+    position: absolute;
+    top: 25%;    
 }
 
-#gameoverscreen .score > span {
-    font-size: 6em;
+#gameoverscreen .ishighscore div.score {
+    position: absolute;
+    top: 20%;
+    margin: 0 auto;
+    text-align: center;
+    width: 100%;
+    font-size: 4em;
 }
 
 @media all and (orientation:portrait) {
@@ -356,44 +359,44 @@ button:focus {
 
 #gameoverscreen .again {
     position: absolute;
-    top: 5%;
+    top: 40%;
     margin: 0 auto;
     text-align: center;
     width: 100%;
 }
 
-    #gameoverscreen .again button > span {
+    #gameoverscreen .again button {
+        margin-bottom: 20pt;
         font-size: 3em;
     }
 
-#gameoverscreen .tomainscreen {
-    font-size: 0.6em;
+#gameoverscreen .again button.tomainscreen {
+    font-size: 2.0em;
 }
 
 #gameoverscreen .form {
     position: absolute;
-    top: 5%;
+    top: 60%;
     margin: 0 auto;
     text-align: center;
     width: 100%;
 }
 
-    #gameoverscreen .form span {
-        font-size: 2em;
+    #gameoverscreen .form button {
+        font-size: 4em;
         margin: 8px 0 8px 0;
         text-align: center;
     }
 
-    #gameoverscreen .form input[type=text] {
-        height: 40pt;
+    #gameoverscreen input[type=text] {
         width: 100%;
         background-color: transparent;
-        border-radius: 20px;
-        border: 1px solid transparent;
+        border: none;
         color: white;
-        font-size: 2em;
-        text-align: center;
+        text-align: left;
+        z-index: 1000;
     }
+
     #gameoverscreen .form button {
         margin-top: 20pt;
     }

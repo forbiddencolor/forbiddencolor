@@ -14,6 +14,7 @@ var scores = new Scores.HighScoreStorage();
 
 export class GameOverScreen extends Screen {
     public highScores: KnockoutObservableArray<Scores.HighScore> = <KnockoutObservableArray<Scores.HighScore>>ko.observableArray();
+    public newHighScores: KnockoutObservableArray<Scores.HighScore> = <KnockoutObservableArray<Scores.HighScore>>ko.observableArray();
     public score: KnockoutObservable<number> = <KnockoutObservable<number>>ko.observable();
     public isHighScore: KnockoutObservable<boolean> = <KnockoutObservable<boolean>>ko.observable();
     public name: KnockoutObservable<string> = <KnockoutObservable<string>>ko.observable();
@@ -45,7 +46,7 @@ export class GameOverScreen extends Screen {
     public show(): void {
         this.updateHighScores();
         super.show();
-        $("input[type=text]").first().focus();
+        $("#name").first().focus();
     }
 
     public hide(): void {
@@ -54,7 +55,14 @@ export class GameOverScreen extends Screen {
 
     private updateHighScores(): void {
         this.highScores.removeAll();
-        scores.getHighScores().forEach(e => this.highScores.push(e));
+        this.newHighScores.removeAll();
+
+        var hs = scores.getHighScores();
+        hs.forEach(e => this.highScores.push(e));
+
+        var newhs = scores.getNewHighScores("", this.score());
+        newhs.forEach(e => this.newHighScores.push(e));
+
         this.isHighScore(scores.isHighScore(this.score()));
     }
 
@@ -76,4 +84,8 @@ export class GameOverScreen extends Screen {
     }
 
     engine: Frame;
+
+    setScore(score: number) {
+        this.score(score);
+    }
 }

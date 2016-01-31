@@ -13,6 +13,7 @@ define(["require", "exports", "Screen", "HighScores", "ScreenManager", "knockout
         function GameOverScreen(engine) {
             _super.call(this, "gameoverscreen");
             this.highScores = ko.observableArray();
+            this.newHighScores = ko.observableArray();
             this.score = ko.observable();
             this.isHighScore = ko.observable();
             this.name = ko.observable();
@@ -35,7 +36,7 @@ define(["require", "exports", "Screen", "HighScores", "ScreenManager", "knockout
         GameOverScreen.prototype.show = function () {
             this.updateHighScores();
             _super.prototype.show.call(this);
-            $("input[type=text]").first().focus();
+            $("#name").first().focus();
         };
         GameOverScreen.prototype.hide = function () {
             _super.prototype.hide.call(this);
@@ -43,7 +44,11 @@ define(["require", "exports", "Screen", "HighScores", "ScreenManager", "knockout
         GameOverScreen.prototype.updateHighScores = function () {
             var _this = this;
             this.highScores.removeAll();
-            scores.getHighScores().forEach(function (e) { return _this.highScores.push(e); });
+            this.newHighScores.removeAll();
+            var hs = scores.getHighScores();
+            hs.forEach(function (e) { return _this.highScores.push(e); });
+            var newhs = scores.getNewHighScores("", this.score());
+            newhs.forEach(function (e) { return _this.newHighScores.push(e); });
             this.isHighScore(scores.isHighScore(this.score()));
         };
         GameOverScreen.prototype.saveScore = function () {
@@ -60,6 +65,9 @@ define(["require", "exports", "Screen", "HighScores", "ScreenManager", "knockout
         GameOverScreen.prototype.mainScreen = function () {
             this.hide();
             ScreenManager.getScreen("startscreen").show();
+        };
+        GameOverScreen.prototype.setScore = function (score) {
+            this.score(score);
         };
         return GameOverScreen;
     })(Screen_1.Screen);
