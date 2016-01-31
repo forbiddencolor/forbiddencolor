@@ -1,5 +1,5 @@
 /// <reference path="typings/jquery/jquery.d.ts" />
-define(["require", "exports", "Frame", "StartScreen", "ScreenManager"], function (require, exports, Frame_1, StartScreen_1, ScreenManager) {
+define(["require", "exports", "Frame", "StartScreen"], function (require, exports, Frame_1, StartScreen_1) {
     var App;
     (function (App) {
         "use strict";
@@ -16,11 +16,11 @@ define(["require", "exports", "Frame", "StartScreen", "ScreenManager"], function
             // Show start screen
             var frame = new Frame_1.Frame();
             var startScreen = new StartScreen_1.StartScreen(frame);
-            // startScreen.show();
+            startScreen.show();
             // For testing
-            var gameover = ScreenManager.getScreen("gameoverscreen");
-            gameover.setScore(100);
-            gameover.show();
+            //var gameover = ScreenManager.getScreen("gameoverscreen") as GameOverScreen;
+            //gameover.setScore(100);
+            //gameover.show();
         }
         function onPause() {
             // TODO: This application has been suspended. Save application state here.

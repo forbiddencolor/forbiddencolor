@@ -26,12 +26,12 @@ module App {
         // Show start screen
         var frame = new Frame();
         var startScreen = new StartScreen(frame);
-        // startScreen.show();
+        startScreen.show();
         
         // For testing
-        var gameover = ScreenManager.getScreen("gameoverscreen") as GameOverScreen;
-        gameover.setScore(100);
-        gameover.show();
+        //var gameover = ScreenManager.getScreen("gameoverscreen") as GameOverScreen;
+        //gameover.setScore(100);
+        //gameover.show();
     }
 
     function onPause(): void {
