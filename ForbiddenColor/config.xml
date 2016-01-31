@@ -4,20 +4,16 @@
   <description>Most stressful and simple game ever. Swipe the forbidden color and beat your friends.</description>
   <author href="http://forbiddencolor.github.io" email="remcoros@live.nl">Remco &amp; Johan</author>
   <content src="index.html" />
-  <access origin="*" />
   <vs:features />
   <preference name="SplashScreen" value="screen" />
   <preference name="windows-target-version" value="8.1" />
-  <preference name="DisallowOverscroll" value="true"/>
-  <preference name="HideKeyboardFormAccessoryBar" value="true"/>
-  <!-- Support for Cordova 5.0.0 plugin system -->
-  <plugin name="cordova-plugin-whitelist" version="1" />
-  <allow-intent href="http://*/*" />
-  <allow-intent href="https://*/*" />
-  <allow-intent href="tel:*" />
-  <allow-intent href="sms:*" />
-  <allow-intent href="mailto:*" />
-  <allow-intent href="geo:*" />
+  <preference name="DisallowOverscroll" value="true" />
+  <preference name="HideKeyboardFormAccessoryBar" value="true" />
+  <preference name="ShowTitle" value="False" />
+  <preference name="KeepRunning" value="True" />
+  <preference name="InAppBrowserStorageEnabled" value="True" />
+  <preference name="SuppressesIncrementalRendering" value="False" />
+  <preference name="android-minSdkVersion" value="19" />
   <platform name="android">
     <allow-intent href="market:*" />
   </platform>
@@ -112,5 +108,4 @@
       <vs:name>Forbidden Color</vs:name>
     </vs:platformSpecificWidget>
   </vs:platformSpecificValues>
-  <preference name="ShowTitle" value="False" />
 </widget>

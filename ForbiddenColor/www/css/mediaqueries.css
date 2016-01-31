@@ -1,0 +1,48 @@
+﻿@media only screen and (min-width: 768px) and (orientation: landscape) {
+    /* tablets and desktop */
+    body {
+        font-size: 1.7em;
+    }
+}
+
+@media only screen and (min-width: 768px) and (orientation: portrait) {
+    /* tablets and desktop */
+    body {
+        font-size: 1.7em;
+    }
+}
+
+@media only screen and (max-width: 767px) {
+    /* phones */
+    body {
+        font-size: 1.0em;
+    }
+}
+
+@media only screen and (max-width: 767px) and (orientation: portrait) {
+    /* portrait phones */
+    body {
+        font-size: 1.5em;
+    }
+}
+
+@media only screen and (max-width: 480px) and (orientation: portrait) {
+    /* portrait phones */
+    body {
+        font-size: 1.1em;
+    }
+}
+
+@media only screen and (max-width: 480px) and (orientation: landscape) {
+    /* landscape phones */
+    body {
+        font-size: 0.9em;
+    }
+}
+
+@media only screen and (max-width: 320px) and (orientation: portrait) {
+    /* portrait phones */
+    body {
+        font-size: 0.9em;
+    }
+}

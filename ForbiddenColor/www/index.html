@@ -8,12 +8,13 @@
     <link href="css/normalize.css" rel="stylesheet" />
     <link href="css/animate.min.css" rel="stylesheet" />
     <link href="css/index.css" rel="stylesheet" />
+    <link href="css/mediaqueries.css" rel="stylesheet" />
 </head>
 <body id="body">
     <!--<div id="container"></div>-->
     <div class="page" id="startscreen">
         <div class="howtoplay">
-            <span>Swipe the forbidden color<br />Tap all other colors</span>
+            <span>Swipe the forbidden color, <br />tap all other colors</span>
         </div>
         <div class="highscores">
             <table>
@@ -62,8 +63,10 @@
         </div>
         <div class="gameover">
             <div><span data-bind="visible: (!isHighScore())">GAME OVER!</span></div>
-            <div><span data-bind="visible: (!isHighScore())" style="font-size: 2.5em;">Your score:</span></div>
             <div><span data-bind="visible: isHighScore">NEW HIGHSCORE</span></div>
+        </div>
+        <div class="yourscore">
+            <span data-bind="visible: (!isHighScore())">Your score:</span>
         </div>
         <div class="score">
             <span data-bind="text: score"></span>

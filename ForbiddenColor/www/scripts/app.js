@@ -1,5 +1,5 @@
 /// <reference path="typings/jquery/jquery.d.ts" />
-define(["require", "exports", "Frame", "StartScreen", "ripple"], function (require, exports, Frame_1, StartScreen_1, ripple) {
+define(["require", "exports", "Frame", "StartScreen"], function (require, exports, Frame_1, StartScreen_1) {
     var App;
     (function (App) {
         "use strict";
@@ -11,17 +11,12 @@ define(["require", "exports", "Frame", "StartScreen", "ripple"], function (requi
             // Handle the Cordova pause and resume events
             document.addEventListener("pause", onPause, false);
             document.addEventListener("resume", onResume, false);
-            ripple.init();
+            // ripple.init();
             // Init engine
             // Show start screen
             var frame = new Frame_1.Frame();
             var startScreen = new StartScreen_1.StartScreen(frame);
             startScreen.show();
-            // for testing
-            //var go = new GameOverScreen(frame);
-            //ScreenManager.addScreen("gameover", go);
-            //go.score(1);
-            //go.show();
         }
         function onPause() {
             // TODO: This application has been suspended. Save application state here.
