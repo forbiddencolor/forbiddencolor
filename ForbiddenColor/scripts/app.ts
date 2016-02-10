@@ -4,6 +4,7 @@ import * as $ from "jquery";
 import {Frame} from "Frame";
 import {StartScreen} from "StartScreen";
 import {GameOverScreen} from "GameOverScreen";
+import * as Scores from "HighScores";
 import * as ScreenManager from "ScreenManager";
 import * as ripple from "ripple";
 
@@ -21,6 +22,9 @@ module App {
         document.addEventListener("resume", onResume, false);
 
         // ripple.init();
+
+        // var scores = new Scores.HighScoreStorage();
+        // scores.resetScores();
 
         // Init engine
         // Show start screen

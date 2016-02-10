@@ -12,6 +12,8 @@ define(["require", "exports", "Frame", "StartScreen"], function (require, export
             document.addEventListener("pause", onPause, false);
             document.addEventListener("resume", onResume, false);
             // ripple.init();
+            // var scores = new Scores.HighScoreStorage();
+            // scores.resetScores();
             // Init engine
             // Show start screen
             var frame = new Frame_1.Frame();

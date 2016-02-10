@@ -67,21 +67,12 @@ define(["require", "exports"], function (require, exports) {
         HighScoreStorage.prototype.resetScores = function () {
             var highscores = {
                 scores: [
-                    { name: "Johan", score: 43 },
-                    { name: "Remco", score: 38 },
-                    { name: "Bob", score: 27 },
-                    { name: "John", score: 15 },
-                    { name: "Chris", score: 4 }]
+                    { name: "Johan", score: 25 },
+                    { name: "Remco", score: 20 },
+                    { name: "Joshua", score: 15 },
+                    { name: "Bob", score: 10 },
+                    { name: "Chris", score: 5 }]
             };
-            // For testing
-            //var highscores = {
-            //    scores: [
-            //        { name: 'Johan', score: 5 },
-            //        { name: 'Remco', score: 4 },
-            //        { name: 'Bob', score: 3 },
-            //        { name: 'John', score: 2 },
-            //        { name: 'Chris', score: 1 }]
-            //};
             localStorage.setItem("highscores", JSON.stringify(highscores));
         };
         HighScoreStorage.prototype.sort = function (a, b) {

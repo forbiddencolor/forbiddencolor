@@ -73,31 +73,32 @@
             </div>
         </div>
         <div data-bind="visible: isHighScore" class="isnohighscore">
-            <div class="newhighscore">
-                <span>NEW HIGHSCORE</span>
-            </div>
-            <!--<div class="score">
-                <span data-bind="text: score"></span>
-            </div>-->
-            <div class="highscores">
-                <table>
-                    <tbody data-bind="foreach: newHighScores">
-                        <tr>
-                            <td class="name">
-                                <!-- ko if:(name.length == 0) -->
-                                <input type="text" data-bind="value: $root.name" id="name" maxlength="5" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
-                                <!-- /ko -->
-                                <span data-bind="visible: (name.length > 0), text: name"></span>
-                            </td>
-                            <td class="score"><span data-bind="text: score"></span></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="form">
-                <!--<input type="text" data-bind="value: name" id="name" maxlength="5" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />-->
-                <button type="button" data-bind="click: saveScore"><span>Save</span></button>
-            </div>
+            <form data-bind="submit: saveScore">
+                <div class="newhighscore">
+                    <span>NEW HIGHSCORE</span>
+                </div>
+                <!--<div class="score">
+            <span data-bind="text: score"></span>
+        </div>-->
+                <div class="highscores">
+                    <table>
+                        <tbody data-bind="foreach: newHighScores">
+                            <tr>
+                                <td class="name">
+                                    <!-- ko if:(name.length == 0) -->
+                                    <input type="text" data-bind="value: $root.name" id="name" maxlength="5" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+                                    <!-- /ko -->
+                                    <span data-bind="visible: (name.length > 0), text: name"></span>
+                                </td>
+                                <td class="score"><span data-bind="text: score"></span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="form">
+                    <button type="submit" data-bind="click: saveScore"><span>Save</span></button>
+                </div>
+            </form>
         </div>
     </div>
     <script data-main="scripts/index" src="scripts/require.js"></script>
