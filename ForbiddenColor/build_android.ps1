@@ -1,0 +1,1 @@
+taco build --local --clean --release --device --target=android
